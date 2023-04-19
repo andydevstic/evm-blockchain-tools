@@ -1,0 +1,46 @@
+{
+  "name": "evm-blockchain-tools",
+  "version": "1.0.0",
+  "description": "This is a collection of resuseable tools to support development for EVM-powered blockchains",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "mocha --require ts-node/register --require tsconfig-paths/register --recursive ./tests/**/*.spec.ts",
+    "build": "rimraf ./dist && tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/andydevstic/evm-blockchain-tools.git"
+  },
+  "keywords": [
+    "ethereum",
+    "blockchain",
+    "binance",
+    "tron",
+    "gnosis-safe"
+  ],
+  "author": "Andy Devstic",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/andydevstic/evm-blockchain-tools/issues"
+  },
+  "homepage": "https://github.com/andydevstic/evm-blockchain-tools#readme",
+  "dependencies": {
+    "alchemy-sdk": "^2.8.0",
+    "ethers": "^5.7.2",
+    "tron-tx-decoder": "^2.0.2",
+    "tronweb": "^5.1.0",
+    "web3": "^1.9.0"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.4",
+    "@types/mocha": "^10.0.1",
+    "@types/sinon": "^10.0.14",
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0",
+    "rimraf": "^5.0.0",
+    "sinon": "^15.0.3",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.0.4"
+  }
+}
