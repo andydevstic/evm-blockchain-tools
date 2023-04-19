@@ -7,6 +7,10 @@ export interface AlchemyGatewayConfig {
   privateKey: string;
 }
 
+export interface Subscription {
+  unsubscribe(): void;
+}
+
 export interface BscGatewayConfig {
   httpsUrl: string;
   privateKey: string;
