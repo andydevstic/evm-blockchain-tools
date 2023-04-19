@@ -1,5 +1,3 @@
 import erc20Abi from "./erc20.json";
 
-export default {
-  erc20Abi,
-};
+export const abis = { erc20: erc20Abi };
