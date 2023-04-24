@@ -11,6 +11,16 @@ export interface Subscription {
   unsubscribe(): void;
 }
 
+export interface WsGatewayConfig {
+  wsUrl: string;
+  privateKey: string;
+}
+
+export interface BscWsGatewayConfig extends WsGatewayConfig {
+  chainId?: number;
+  networkName?: string;
+}
+
 export interface BscGatewayConfig {
   httpsUrl: string;
   privateKey: string;

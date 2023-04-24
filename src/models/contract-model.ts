@@ -7,21 +7,21 @@ export abstract class ContractModel {
 
   public abi: Interface;
 
-  constructor(address: string, abi: any, signer: any) {
+  constructor(public address: string, abi: any, signer: any) {
     this.abi = new ethers.utils.Interface(abi);
 
     this.contract = new Contract(address, abi, signer);
   }
 
   public subscribeForEvent(
-    eventName: string,
+    eventFilter: string | ethers.EventFilter,
     callback: ethers.providers.Listener
   ): Subscription {
-    this.contract.on(eventName, callback);
+    this.contract.on(eventFilter, callback);
 
     return {
       unsubscribe: () => {
-        this.contract.removeListener(eventName, callback);
+        this.contract.removeListener(eventFilter, callback);
       },
     };
   }
