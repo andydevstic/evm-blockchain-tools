@@ -25,11 +25,15 @@
   },
   "homepage": "https://github.com/andydevstic/evm-blockchain-tools#readme",
   "dependencies": {
+    "@safe-global/safe-core-sdk": "^3.3.2",
+    "@safe-global/safe-core-sdk-types": "^1.10.1",
+    "@safe-global/safe-ethers-lib": "^1.9.2",
+    "@safe-global/safe-service-client": "^2.0.0",
     "alchemy-sdk": "^2.8.0",
     "ethers": "^5.7.2",
     "tron-tx-decoder": "^2.0.2",
     "tronweb": "^5.1.0",
-    "web3": "^1.9.0"
+    "web3": "^0.20.7"
   },
   "devDependencies": {
     "@types/chai": "^4.3.4",

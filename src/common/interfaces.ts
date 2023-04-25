@@ -7,6 +7,10 @@ export interface AlchemyGatewayConfig {
   privateKey: string;
 }
 
+export interface MultisigConfig {
+  safeServiceUrl: string;
+}
+
 export interface Subscription {
   unsubscribe(): void;
 }
