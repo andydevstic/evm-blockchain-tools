@@ -6,6 +6,11 @@ export enum APP_NETWORK {
   BINANCE_TESTNET = "bnbt",
 }
 
+export enum ACCEPTED_CURRENCY {
+  USDT = "USDT",
+  USC = "USC",
+}
+
 export enum NETWORK_IDS {
   ETH = 1,
   GOERLI = 5,

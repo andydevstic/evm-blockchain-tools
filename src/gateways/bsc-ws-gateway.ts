@@ -2,6 +2,7 @@ import { ethers, Signer, Wallet } from "ethers";
 import Web3 from "web3";
 
 import { BscWsGatewayConfig, IWeb3Gateway } from "../common/interfaces";
+import { APP_NETWORK } from "../common/constants";
 
 export class BscWsGateway implements IWeb3Gateway {
   protected web3: Web3;
@@ -19,6 +20,10 @@ export class BscWsGateway implements IWeb3Gateway {
     return Promise.resolve(
       new ethers.Wallet(this.config.privateKey, this.provider)
     );
+  }
+
+  public get network(): APP_NETWORK {
+    return APP_NETWORK.BINANCE;
   }
 
   public async getBlock(blockNumber: number): Promise<any> {

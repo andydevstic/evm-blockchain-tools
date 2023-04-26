@@ -2,6 +2,7 @@ import { Alchemy } from "alchemy-sdk";
 import { Signer, Wallet, ethers } from "ethers";
 
 import { AlchemyGatewayConfig, IWeb3Gateway } from "../common/interfaces";
+import { APP_NETWORK } from "../common/constants";
 
 export class AlchemyWsGateway implements IWeb3Gateway {
   protected _alchemy: Alchemy;
@@ -25,6 +26,10 @@ export class AlchemyWsGateway implements IWeb3Gateway {
 
   public get signer(): Promise<Signer> {
     return Promise.resolve(this.wallet);
+  }
+
+  public get network(): APP_NETWORK {
+    return APP_NETWORK.ETH;
   }
 
   public getCurrentBlock(): Promise<number> {

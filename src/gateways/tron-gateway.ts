@@ -2,6 +2,7 @@ import TronWeb from "tronweb";
 import { Signer, Wallet } from "ethers";
 
 import { IWeb3Gateway, TronGatewayConfig } from "../common/interfaces";
+import { APP_NETWORK } from "../common/constants";
 
 export class TronGateway implements IWeb3Gateway {
   protected _tron: any;
@@ -24,6 +25,10 @@ export class TronGateway implements IWeb3Gateway {
 
   public get signer(): Promise<Signer> {
     return this._tron.trx.getAccount(this.signerAddress);
+  }
+
+  public get network(): APP_NETWORK {
+    return APP_NETWORK.TRON;
   }
 
   public async getCurrentBlock(): Promise<number> {

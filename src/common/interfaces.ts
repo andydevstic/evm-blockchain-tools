@@ -43,6 +43,7 @@ export interface TronGatewayConfig {
 }
 
 export interface IWeb3Gateway {
+  network: APP_NETWORK;
   signer: Promise<Signer>;
   provider?: any;
   getCurrentBlock(): Promise<number>;

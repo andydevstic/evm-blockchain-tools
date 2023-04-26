@@ -2,6 +2,7 @@ import { ethers, Signer, Wallet } from "ethers";
 import Web3 from "web3";
 
 import { BscGatewayConfig, IWeb3Gateway } from "../common/interfaces";
+import { APP_NETWORK, NETWORK_IDS } from "../common/constants";
 
 export class BscGateway implements IWeb3Gateway {
   protected web3: Web3;
@@ -11,7 +12,7 @@ export class BscGateway implements IWeb3Gateway {
   constructor(protected config: BscGatewayConfig) {
     this.provider = new ethers.providers.JsonRpcProvider(this.config.httpsUrl, {
       name: this.config.networkName || "binance",
-      chainId: this.config.chainId || 56,
+      chainId: this.config.chainId || NETWORK_IDS.BINANCE,
     });
   }
 
@@ -19,6 +20,10 @@ export class BscGateway implements IWeb3Gateway {
     return Promise.resolve(
       new ethers.Wallet(this.config.privateKey, this.provider)
     );
+  }
+
+  public get network(): APP_NETWORK {
+    return APP_NETWORK.BINANCE;
   }
 
   public async getBlock(blockNumber: number): Promise<any> {

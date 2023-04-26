@@ -5,3 +5,4 @@ export * from "./src/common/abis";
 
 export * as constants from "./src/common/constants";
 export * as types from "./src/common/interfaces";
+export * as utils from "./src/utils";
