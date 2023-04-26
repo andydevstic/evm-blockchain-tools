@@ -27,6 +27,10 @@ export class BscGateway implements IWeb3Gateway {
     return block;
   }
 
+  public getCurrentBlock(): Promise<number> {
+    return this.provider.getBlockNumber();
+  }
+
   public async getSignerAddress(): Promise<string> {
     const signer = await this.signer;
 

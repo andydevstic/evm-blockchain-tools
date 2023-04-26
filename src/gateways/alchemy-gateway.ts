@@ -23,6 +23,10 @@ export class AlchemyGateway implements IWeb3Gateway {
     this._provider = alchemyProvider;
   }
 
+  public getCurrentBlock(): Promise<number> {
+    return this._provider.getBlockNumber();
+  }
+
   public get signer(): Promise<Signer> {
     return Promise.resolve(this.wallet);
   }

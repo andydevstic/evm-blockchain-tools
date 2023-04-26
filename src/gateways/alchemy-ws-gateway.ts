@@ -27,6 +27,10 @@ export class AlchemyWsGateway implements IWeb3Gateway {
     return Promise.resolve(this.wallet);
   }
 
+  public getCurrentBlock(): Promise<number> {
+    return this._provider.getBlockNumber();
+  }
+
   public getBlock(blockNumber: number) {
     return this._provider.getBlock(blockNumber);
   }

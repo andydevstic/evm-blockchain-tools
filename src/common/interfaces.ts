@@ -45,6 +45,7 @@ export interface TronGatewayConfig {
 export interface IWeb3Gateway {
   signer: Promise<Signer>;
   provider?: any;
+  getCurrentBlock(): Promise<number>;
   init?(): Promise<void>;
   getSignerAddress(): Promise<string>;
   getBlock(blockNumber: number): Promise<ethers.providers.Block>;

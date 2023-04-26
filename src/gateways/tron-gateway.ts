@@ -26,6 +26,12 @@ export class TronGateway implements IWeb3Gateway {
     return this._tron.trx.getAccount(this.signerAddress);
   }
 
+  public async getCurrentBlock(): Promise<number> {
+    const blockData = await this._tron.trx.getCurrentBlock();
+
+    return blockData?.block_header?.raw_data?.number;
+  }
+
   public getBlock(blockNumber: number) {
     return this._tron.trx.getBlockByNumber(blockNumber);
   }
