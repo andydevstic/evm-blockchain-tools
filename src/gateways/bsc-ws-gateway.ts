@@ -2,7 +2,7 @@ import { ethers, Signer, Wallet } from "ethers";
 import Web3 from "web3";
 
 import { BscWsGatewayConfig, IWeb3Gateway } from "../common/interfaces";
-import { APP_NETWORK } from "../common/constants";
+import { APP_NETWORK, NETWORK_IDS } from "../common/constants";
 
 export class BscWsGateway implements IWeb3Gateway {
   protected web3: Web3;
@@ -11,8 +11,8 @@ export class BscWsGateway implements IWeb3Gateway {
 
   constructor(protected config: BscWsGatewayConfig) {
     this.provider = new ethers.providers.WebSocketProvider(this.config.wsUrl, {
-      name: this.config.networkName || "binance",
-      chainId: this.config.chainId || 56,
+      name: this.config.network || APP_NETWORK.BINANCE,
+      chainId: this.config.chainId || NETWORK_IDS.BINANCE,
     });
   }
 
@@ -23,7 +23,7 @@ export class BscWsGateway implements IWeb3Gateway {
   }
 
   public get network(): APP_NETWORK {
-    return APP_NETWORK.BINANCE;
+    return this.config.network;
   }
 
   public async getBlock(blockNumber: number): Promise<any> {

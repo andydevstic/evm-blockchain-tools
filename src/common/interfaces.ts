@@ -22,14 +22,14 @@ export interface WsGatewayConfig {
 
 export interface BscWsGatewayConfig extends WsGatewayConfig {
   chainId?: number;
-  networkName?: string;
+  network: APP_NETWORK;
 }
 
 export interface BscGatewayConfig {
   httpsUrl: string;
   privateKey: string;
   chainId?: number;
-  networkName?: string;
+  network: APP_NETWORK;
 }
 
 export interface Waitable {

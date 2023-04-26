@@ -9,23 +9,23 @@ export class AlchemyGateway implements IWeb3Gateway {
   protected _provider: ethers.providers.AlchemyProvider;
   public wallet: Wallet;
 
-  constructor(protected configService: AlchemyGatewayConfig) {
+  constructor(protected config: AlchemyGatewayConfig) {
     this._alchemy = new Alchemy({
-      apiKey: configService.apiKey,
+      apiKey: config.apiKey,
     });
 
     const alchemyProvider = new ethers.providers.AlchemyProvider(
-      configService.network,
-      configService.apiKey
+      config.network,
+      config.apiKey
     );
 
-    this.wallet = new Wallet(configService.privateKey, alchemyProvider);
+    this.wallet = new Wallet(config.privateKey, alchemyProvider);
 
     this._provider = alchemyProvider;
   }
 
   public get network(): APP_NETWORK {
-    return APP_NETWORK.ETH;
+    return this.config.network;
   }
 
   public getCurrentBlock(): Promise<number> {
