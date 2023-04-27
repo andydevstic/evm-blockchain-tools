@@ -12,12 +12,6 @@ import { APP_NETWORK } from "../common/constants";
 export class BlockchainService {
   constructor(protected provider: IWeb3Gateway) {}
 
-  public getTransactionByID(
-    txID: string
-  ): Promise<ethers.providers.TransactionResponse> {
-    return this.provider.getTransactionByID(txID);
-  }
-
   public getBlock(blockNum: number) {
     return this.provider.getBlock(blockNum);
   }
@@ -56,7 +50,7 @@ export class BlockchainService {
     return signerAddress;
   }
 
-  public async getTransactionBydId(txID: string) {
+  public async getTransactionById(txID: string) {
     const txData = await this.provider.getTransactionByID(txID);
 
     if (this.provider.network === APP_NETWORK.TRON) {
