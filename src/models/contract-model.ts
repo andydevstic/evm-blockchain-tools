@@ -3,8 +3,7 @@ import { Interface } from "ethers/lib/utils";
 import { Subscription } from "src/common/interfaces";
 
 export abstract class ContractModel {
-  protected contract: Contract;
-
+  public contract: Contract;
   public abi: Interface;
 
   constructor(public address: string, abi: any, signer: any) {
