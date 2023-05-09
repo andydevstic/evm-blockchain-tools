@@ -1,6 +1,7 @@
 import { Signer, ethers } from "ethers";
 
 import { APP_NETWORK } from "./constants";
+import { Options } from "reconnecting-websocket";
 
 export interface AlchemyGatewayConfig {
   apiKey: string;
@@ -10,6 +11,7 @@ export interface AlchemyGatewayConfig {
 
 export interface WsGatewayConfig {
   wsUrl: string;
+  options?: Options;
 }
 
 export interface MultisigConfig {

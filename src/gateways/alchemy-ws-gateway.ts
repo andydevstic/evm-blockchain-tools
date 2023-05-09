@@ -1,4 +1,5 @@
 import { Alchemy } from "alchemy-sdk";
+import Ws from "ws";
 import ReconnectingWebSocket from "reconnecting-websocket";
 import { Signer, Wallet, ethers } from "ethers";
 
@@ -19,7 +20,10 @@ export class AlchemyWsGateway implements IWeb3Gateway {
       apiKey: config.apiKey,
     });
 
-    const wsClient = new ReconnectingWebSocket(config.wsUrl);
+    const wsClient = new ReconnectingWebSocket(config.wsUrl, [], {
+      WebSocket: Ws,
+      ...(config.options || {}),
+    });
 
     const alchemyProvider = new ethers.providers.WebSocketProvider(
       wsClient,

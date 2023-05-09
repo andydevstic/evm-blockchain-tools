@@ -1,4 +1,5 @@
 import { ethers, Signer, Wallet } from "ethers";
+import Ws from "ws";
 import ReconnectingWebSocket from "reconnecting-websocket";
 
 import {
@@ -13,7 +14,10 @@ export class BscWsGateway implements IWeb3Gateway {
   public wallet: Wallet;
 
   constructor(protected config: WsGatewayConfig & BscWsGatewayConfig) {
-    const wsClient = new ReconnectingWebSocket(config.wsUrl);
+    const wsClient = new ReconnectingWebSocket(config.wsUrl, [], {
+      WebSocket: Ws,
+      ...(config.options || {}),
+    });
 
     this.provider = new ethers.providers.WebSocketProvider(wsClient, {
       name: this.config.network || APP_NETWORK.BINANCE,
