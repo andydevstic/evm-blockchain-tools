@@ -6,7 +6,7 @@
   "scripts": {
     "test": "mocha --require ts-node/register --require tsconfig-paths/register --recursive ./tests/**/*.spec.ts",
     "build": "rimraf ./dist && tsc",
-    "prepublishOnly": "npm build"
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
