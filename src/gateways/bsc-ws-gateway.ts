@@ -1,16 +1,21 @@
 import { ethers, Signer, Wallet } from "ethers";
-import Web3 from "web3";
+import ReconnectingWebSocket from "reconnecting-websocket";
 
-import { BscWsGatewayConfig, IWeb3Gateway } from "../common/interfaces";
+import {
+  BscWsGatewayConfig,
+  IWeb3Gateway,
+  WsGatewayConfig,
+} from "../common/interfaces";
 import { APP_NETWORK, NETWORK_IDS } from "../common/constants";
 
 export class BscWsGateway implements IWeb3Gateway {
-  protected web3: Web3;
   public provider: ethers.providers.WebSocketProvider;
   public wallet: Wallet;
 
-  constructor(protected config: BscWsGatewayConfig) {
-    this.provider = new ethers.providers.WebSocketProvider(this.config.wsUrl, {
+  constructor(protected config: WsGatewayConfig & BscWsGatewayConfig) {
+    const wsClient = new ReconnectingWebSocket(config.wsUrl);
+
+    this.provider = new ethers.providers.WebSocketProvider(wsClient, {
       name: this.config.network || APP_NETWORK.BINANCE,
       chainId: this.config.chainId || NETWORK_IDS.BINANCE,
     });

@@ -1,10 +1,15 @@
 import { Signer, ethers } from "ethers";
+
 import { APP_NETWORK } from "./constants";
 
 export interface AlchemyGatewayConfig {
   apiKey: string;
   network: APP_NETWORK;
   privateKey: string;
+}
+
+export interface WsGatewayConfig {
+  wsUrl: string;
 }
 
 export interface MultisigConfig {

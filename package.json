@@ -6,7 +6,7 @@
   "scripts": {
     "test": "mocha --require ts-node/register --require tsconfig-paths/register --recursive ./tests/**/*.spec.ts",
     "build": "rimraf ./dist && tsc",
-    "prepublish": "yarn build"
+    "prepublishOnly": "npm build"
   },
   "repository": {
     "type": "git",
@@ -32,15 +32,19 @@
     "@safe-global/safe-service-client": "^2.0.0",
     "alchemy-sdk": "^2.8.0",
     "ethers": "^5.7.2",
+    "reconnecting-websocket": "^4.4.0",
     "tron-tx-decoder": "^2.0.2",
     "tronweb": "^5.1.0",
-    "web3": "^0.20.7"
+    "web3": "^0.20.7",
+    "web3-providers-ws": "^1.9.0",
+    "ws": "^8.13.0"
   },
   "devDependencies": {
     "@types/chai": "^4.3.4",
     "@types/mocha": "^10.0.1",
     "@types/sinon": "^10.0.14",
     "@types/web3": "^1.2.2",
+    "@types/ws": "^8.5.4",
     "chai": "^4.3.7",
     "mocha": "^10.2.0",
     "rimraf": "^5.0.0",

@@ -1,21 +1,28 @@
 import { Alchemy } from "alchemy-sdk";
+import ReconnectingWebSocket from "reconnecting-websocket";
 import { Signer, Wallet, ethers } from "ethers";
 
-import { AlchemyGatewayConfig, IWeb3Gateway } from "../common/interfaces";
+import {
+  AlchemyGatewayConfig,
+  IWeb3Gateway,
+  WsGatewayConfig,
+} from "../common/interfaces";
 import { APP_NETWORK } from "../common/constants";
 
 export class AlchemyWsGateway implements IWeb3Gateway {
   protected _alchemy: Alchemy;
-  protected _provider: ethers.providers.AlchemyWebSocketProvider;
+  protected _provider: ethers.providers.WebSocketProvider;
   public wallet: Wallet;
 
-  constructor(protected config: AlchemyGatewayConfig) {
+  constructor(protected config: WsGatewayConfig & AlchemyGatewayConfig) {
     this._alchemy = new Alchemy({
       apiKey: config.apiKey,
     });
 
-    const alchemyProvider = new ethers.providers.AlchemyWebSocketProvider(
-      config.network,
+    const wsClient = new ReconnectingWebSocket(config.wsUrl);
+
+    const alchemyProvider = new ethers.providers.WebSocketProvider(
+      wsClient,
       config.apiKey
     );
 
