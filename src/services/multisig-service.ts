@@ -2,12 +2,13 @@ import { ethers } from "ethers";
 import Safe from "@safe-global/safe-core-sdk";
 import EthersAdapter from "@safe-global/safe-ethers-lib";
 import { SafeTransactionDataPartial } from "@safe-global/safe-core-sdk-types";
+import axios from "axios";
 import SafeServiceClient, {
   SafeMultisigTransactionListResponse,
 } from "@safe-global/safe-service-client";
-import { IWeb3Gateway, MultisigConfig } from "../common/interfaces";
+
+import { IWeb3Gateway } from "../common/interfaces";
 import { APP_NETWORK, EMPTY_ADDRESS } from "../common/constants";
-import axios from "axios";
 import { encodeFunctionSignature } from "../utils/web3-utils";
 
 export class MultisigService {
@@ -16,20 +17,18 @@ export class MultisigService {
   protected adapter: EthersAdapter;
   protected serviceClient: SafeServiceClient;
 
-  constructor(
-    protected provider: IWeb3Gateway,
-    protected config: MultisigConfig
-  ) {}
+  constructor(protected provider: IWeb3Gateway) {}
 
   public async init(): Promise<void> {
     const signer = await this.provider.signer;
+
     this.adapter = new EthersAdapter({
       ethers,
       signerOrProvider: signer,
     });
 
     this.serviceClient = new SafeServiceClient({
-      txServiceUrl: this.config.safeServiceUrl,
+      txServiceUrl: this.serviceNetworkUrl,
       ethAdapter: this.adapter,
     });
 
@@ -42,7 +41,7 @@ export class MultisigService {
     }
   }
 
-  public async getSafeByAddress(safeAddress: string): Promise<Safe> {
+  public getSafeByAddress(safeAddress: string): Promise<Safe> {
     this.ensureInit();
 
     return Safe.create({
@@ -51,8 +50,8 @@ export class MultisigService {
     });
   }
 
-  public getServiceUrlByNetwork(network: APP_NETWORK) {
-    switch (network) {
+  protected get serviceNetworkUrl() {
+    switch (this.provider.network) {
       case APP_NETWORK.ETH:
         return "https://safe-transaction-mainnet.safe.global";
       case APP_NETWORK.BINANCE:
@@ -66,13 +65,10 @@ export class MultisigService {
 
   public async getTxByNonce(
     multisigAddress: string,
-    nonce: number,
-    network: APP_NETWORK = APP_NETWORK.ETH
+    nonce: number
   ): Promise<SafeMultisigTransactionListResponse> {
-    const url = this.getServiceUrlByNetwork(network);
-
     const response = await axios.get(
-      `${url}/api/v1/safes/${multisigAddress}/multisig-transactions?nonce=${nonce}`
+      `${this.serviceNetworkUrl}/api/v1/safes/${multisigAddress}/multisig-transactions?nonce=${nonce}`
     );
 
     if (response.status === 200) {
@@ -97,7 +93,6 @@ export class MultisigService {
 
   protected async proposeTx(
     multisigAddress: string,
-    safeServiceUrl: string,
     data: SafeTransactionDataPartial & {
       sender: string;
       signature: string;
@@ -105,7 +100,7 @@ export class MultisigService {
       contractTransactionHash: string;
     }
   ): Promise<void> {
-    const url = `${safeServiceUrl}/api/v1/safes/${multisigAddress}/multisig-transactions/`;
+    const url = `${this.serviceNetworkUrl}/api/v1/safes/${multisigAddress}/multisig-transactions/`;
 
     const response = await axios.post(url, data);
 
@@ -149,7 +144,6 @@ export class MultisigService {
 
   public async sendMultisigTx(
     multisigAddress: string,
-    safeServiceUrl: string,
     signerAddress: string,
     txData: SafeTransactionDataPartial
   ): Promise<string> {
@@ -179,7 +173,7 @@ export class MultisigService {
 
     const txHash = await safe.getTransactionHash(signedTx);
 
-    await this.proposeTx(multisigAddress, safeServiceUrl, {
+    await this.proposeTx(multisigAddress, {
       ...tx.data,
       sender: signerAddress,
       signature: signatureValue.data,

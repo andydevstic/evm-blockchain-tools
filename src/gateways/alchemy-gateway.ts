@@ -1,5 +1,6 @@
 import { Alchemy } from "alchemy-sdk";
 import { Signer, Wallet, ethers } from "ethers";
+import { hashMessage } from "@ethersproject/hash";
 
 import { AlchemyGatewayConfig, IWeb3Gateway } from "../common/interfaces";
 import { APP_NETWORK } from "../common/constants";
@@ -26,6 +27,13 @@ export class AlchemyGateway implements IWeb3Gateway {
 
   public get network(): APP_NETWORK {
     return this.config.network;
+  }
+
+  public async recoverSigner(
+    message: string,
+    signedMessage: string
+  ): Promise<string> {
+    return ethers.utils.recoverAddress(hashMessage(message), signedMessage);
   }
 
   public getCurrentBlock(): Promise<number> {

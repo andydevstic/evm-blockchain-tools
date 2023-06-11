@@ -14,10 +14,6 @@ export interface WsGatewayConfig {
   options?: Options;
 }
 
-export interface MultisigConfig {
-  safeServiceUrl: string;
-}
-
 export interface Subscription {
   unsubscribe(): void;
 }
@@ -60,4 +56,5 @@ export interface IWeb3Gateway {
   getTransactionByID(
     txID: string
   ): Promise<ethers.providers.TransactionResponse>;
+  recoverSigner(message: string, signedMessage: string): Promise<string>;
 }

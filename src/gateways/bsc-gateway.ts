@@ -1,5 +1,6 @@
 import { ethers, Signer, Wallet } from "ethers";
 import Web3 from "web3";
+import { hashMessage } from "@ethersproject/hash";
 
 import { BscGatewayConfig, IWeb3Gateway } from "../common/interfaces";
 import { APP_NETWORK, NETWORK_IDS } from "../common/constants";
@@ -30,6 +31,13 @@ export class BscGateway implements IWeb3Gateway {
     const block = await this.provider.getBlock(blockNumber);
 
     return block;
+  }
+
+  public async recoverSigner(
+    message: string,
+    signedMessage: string
+  ): Promise<string> {
+    return ethers.utils.recoverAddress(hashMessage(message), signedMessage);
   }
 
   public getCurrentBlock(): Promise<number> {

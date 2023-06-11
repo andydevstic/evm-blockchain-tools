@@ -41,6 +41,13 @@ export class TronGateway implements IWeb3Gateway {
     return this._tron.trx.getBlockByNumber(blockNumber);
   }
 
+  public recoverSigner(
+    message: string,
+    signedMessage: string
+  ): Promise<string> {
+    return this._tron.trx.verifyMessageV2(message, signedMessage);
+  }
+
   public async getSignerAddress(): Promise<string> {
     return this.signerAddress;
   }
