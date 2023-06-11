@@ -1,6 +1,7 @@
 import { Alchemy } from "alchemy-sdk";
 import Ws from "ws";
 import ReconnectingWebSocket from "reconnecting-websocket";
+import { hashMessage } from "@ethersproject/hash";
 import { Signer, Wallet, ethers } from "ethers";
 
 import {
@@ -45,6 +46,13 @@ export class AlchemyWsGateway implements IWeb3Gateway {
 
   public getCurrentBlock(): Promise<number> {
     return this._provider.getBlockNumber();
+  }
+
+  public async recoverSigner(
+    message: string,
+    signedMessage: string
+  ): Promise<string> {
+    return ethers.utils.recoverAddress(hashMessage(message), signedMessage);
   }
 
   public getBlock(blockNumber: number) {
