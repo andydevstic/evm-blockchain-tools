@@ -29,7 +29,10 @@ export class BlockchainService {
       });
     }
 
-    const tronDecoder = new TronDecoder({ mainnet: true });
+    const tronDecoder = new TronDecoder({
+      mainnet: process.env.NODE_ENV === "production",
+    });
+
     const { methodName, inputTypes, decodedInput } =
       await tronDecoder.decodeInputById(txId);
 
