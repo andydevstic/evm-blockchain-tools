@@ -11,6 +11,12 @@ export enum ACCEPTED_CURRENCY {
   USC = "USC",
 }
 
+export enum MULTISIG_TX_STATUS {
+  EXECUTED = "executed",
+  PENDING = "pending",
+  REJECTED = "rejected",
+}
+
 export enum NETWORK_IDS {
   ETH = 1,
   GOERLI = 5,

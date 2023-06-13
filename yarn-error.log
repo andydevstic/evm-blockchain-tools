@@ -1,0 +1,91 @@
+Arguments: 
+  /Users/huytran/.nvm/versions/node/v18.15.0/bin/node /Users/huytran/.nvm/versions/node/v18.15.0/bin/yarn add mvc-common-toolkits
+
+PATH: 
+  /Users/huytran/.nvm/versions/node/v18.15.0/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/go/bin:/Library/Apple/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin
+
+Yarn version: 
+  1.22.19
+
+Node version: 
+  18.15.0
+
+Platform: 
+  darwin arm64
+
+Trace: 
+  Error: https://registry.yarnpkg.com/mvc-common-toolkits: Not found
+      at params.callback [as _callback] (/Users/huytran/.nvm/versions/node/v18.15.0/lib/node_modules/yarn/lib/cli.js:66145:18)
+      at self.callback (/Users/huytran/.nvm/versions/node/v18.15.0/lib/node_modules/yarn/lib/cli.js:140890:22)
+      at Request.emit (node:events:513:28)
+      at Request.<anonymous> (/Users/huytran/.nvm/versions/node/v18.15.0/lib/node_modules/yarn/lib/cli.js:141862:10)
+      at Request.emit (node:events:513:28)
+      at IncomingMessage.<anonymous> (/Users/huytran/.nvm/versions/node/v18.15.0/lib/node_modules/yarn/lib/cli.js:141784:12)
+      at Object.onceWrapper (node:events:627:28)
+      at IncomingMessage.emit (node:events:525:35)
+      at endReadableNT (node:internal/streams/readable:1359:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:82:21)
+
+npm manifest: 
+  {
+    "name": "evm-blockchain-tools",
+    "version": "1.9.1",
+    "description": "This is a collection of resuseable tools to support development for EVM-powered blockchains",
+    "main": "dist/index.js",
+    "scripts": {
+      "test": "mocha --require ts-node/register --require tsconfig-paths/register --recursive ./tests/**/*.spec.ts",
+      "build": "rimraf ./dist && tsc",
+      "prepublishOnly": "npm run build"
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+ssh://git@github.com/andydevstic/evm-blockchain-tools.git"
+    },
+    "keywords": [
+      "ethereum",
+      "blockchain",
+      "binance",
+      "tron",
+      "gnosis-safe"
+    ],
+    "author": "Andy Devstic",
+    "license": "MIT",
+    "bugs": {
+      "url": "https://github.com/andydevstic/evm-blockchain-tools/issues"
+    },
+    "homepage": "https://github.com/andydevstic/evm-blockchain-tools#readme",
+    "dependencies": {
+      "@safe-global/safe-core-sdk": "^3.3.2",
+      "@safe-global/safe-core-sdk-types": "^1.10.1",
+      "@safe-global/safe-ethers-lib": "^1.9.2",
+      "@safe-global/safe-service-client": "^2.0.0",
+      "alchemy-sdk": "^2.8.0",
+      "ethers": "^5.7.2",
+      "reconnecting-websocket": "^4.4.0",
+      "tron-tx-decoder": "^2.0.2",
+      "tronweb": "^5.1.0",
+      "web3": "^0.20.7",
+      "web3-providers-ws": "^1.9.0",
+      "ws": "^8.13.0"
+    },
+    "devDependencies": {
+      "@types/chai": "^4.3.4",
+      "@types/mocha": "^10.0.1",
+      "@types/sinon": "^10.0.14",
+      "@types/web3": "^1.2.2",
+      "@types/ws": "^8.5.4",
+      "chai": "^4.3.7",
+      "mocha": "^10.2.0",
+      "rimraf": "^5.0.0",
+      "sinon": "^15.0.3",
+      "ts-node": "^10.9.1",
+      "tsconfig-paths": "^4.2.0",
+      "typescript": "^5.0.4"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile

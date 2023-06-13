@@ -1,6 +1,6 @@
 import { Signer, ethers } from "ethers";
 
-import { APP_NETWORK } from "./constants";
+import { APP_NETWORK, MULTISIG_TX_STATUS } from "./constants";
 import { Options } from "reconnecting-websocket";
 
 export interface AlchemyGatewayConfig {
@@ -21,6 +21,11 @@ export interface Subscription {
 export interface WsGatewayConfig {
   wsUrl: string;
   privateKey: string;
+}
+
+export interface MultisigTxStatus {
+  status: MULTISIG_TX_STATUS;
+  transactionHash?: string;
 }
 
 export interface BscWsGatewayConfig extends WsGatewayConfig {

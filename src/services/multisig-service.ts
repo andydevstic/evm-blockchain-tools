@@ -7,8 +7,12 @@ import SafeServiceClient, {
   SafeMultisigTransactionListResponse,
 } from "@safe-global/safe-service-client";
 
-import { IWeb3Gateway } from "../common/interfaces";
-import { APP_NETWORK, EMPTY_ADDRESS } from "../common/constants";
+import { IWeb3Gateway, MultisigTxStatus } from "../common/interfaces";
+import {
+  APP_NETWORK,
+  EMPTY_ADDRESS,
+  MULTISIG_TX_STATUS,
+} from "../common/constants";
 import { encodeFunctionSignature } from "../utils/web3-utils";
 
 export class MultisigService {
@@ -61,6 +65,46 @@ export class MultisigService {
       case APP_NETWORK.BINANCE_TESTNET:
         throw new Error("service for binance testnet is not supported");
     }
+  }
+
+  public async checkTxStatus(
+    multisigAddress: string,
+    internalHash: string
+  ): Promise<MultisigTxStatus> {
+    const txData = await this.getTransaction(internalHash);
+
+    // Tx executed successfully
+    if (txData.isExecuted && txData.isSuccessful && txData.dataDecoded) {
+      return {
+        status: MULTISIG_TX_STATUS.EXECUTED,
+        transactionHash: txData.transactionHash,
+      };
+    }
+
+    const txByNonce = await this.getTxByNonce(multisigAddress, txData.nonce);
+
+    // Tx is still pending
+    if (txByNonce.results?.length === 1) {
+      return {
+        status: MULTISIG_TX_STATUS.PENDING,
+      };
+    }
+
+    const executedRejectionTx = txByNonce.results.find(
+      (tx) => tx.isExecuted && tx.isSuccessful && !tx.dataDecoded
+    );
+
+    // Found rejection tx and is executed
+    if (executedRejectionTx) {
+      return {
+        status: MULTISIG_TX_STATUS.REJECTED,
+      };
+    }
+
+    // Rejection tx submitted but not yet approved
+    return {
+      status: MULTISIG_TX_STATUS.PENDING,
+    };
   }
 
   public async getTxByNonce(
