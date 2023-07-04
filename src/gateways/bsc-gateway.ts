@@ -27,6 +27,12 @@ export class BscGateway implements IWeb3Gateway {
     return this.config.network;
   }
 
+  public async getGasPrice(): Promise<string> {
+    const gasPrice = await this.provider.getGasPrice();
+
+    return gasPrice.toString();
+  }
+
   public async getBlock(blockNumber: number): Promise<any> {
     const block = await this.provider.getBlock(blockNumber);
 

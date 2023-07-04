@@ -59,6 +59,12 @@ export class AlchemyWsGateway implements IWeb3Gateway {
     return this._provider.getBlock(blockNumber);
   }
 
+  public async getGasPrice(): Promise<string> {
+    const gasPrice = await this._provider.getGasPrice();
+
+    return gasPrice.toString();
+  }
+
   public getSignerAddress(): Promise<string> {
     return this.wallet.getAddress();
   }

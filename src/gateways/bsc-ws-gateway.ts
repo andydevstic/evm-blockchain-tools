@@ -26,6 +26,12 @@ export class BscWsGateway implements IWeb3Gateway {
     });
   }
 
+  public async getGasPrice(): Promise<string> {
+    const gasPrice = await this.provider.getGasPrice();
+
+    return gasPrice.toString();
+  }
+
   public get signer(): Promise<Signer> {
     return Promise.resolve(
       new ethers.Wallet(this.config.privateKey, this.provider)

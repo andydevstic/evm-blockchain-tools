@@ -41,6 +41,10 @@ export class TronGateway implements IWeb3Gateway {
     return this._tron.trx.getBlockByNumber(blockNumber);
   }
 
+  public async getGasPrice(): Promise<string> {
+    throw new Error("get gas price not supported for Tron");
+  }
+
   public recoverSigner(
     message: string,
     signedMessage: string
