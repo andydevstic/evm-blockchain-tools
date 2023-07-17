@@ -15,6 +15,7 @@ export class AlchemyWsGateway implements IWeb3Gateway {
   protected _alchemy: Alchemy;
   protected _provider: ethers.providers.WebSocketProvider;
   public wallet: Wallet;
+  public network = APP_NETWORK.ETH;
 
   constructor(protected config: WsGatewayConfig & AlchemyGatewayConfig) {
     this._alchemy = new Alchemy({
@@ -38,10 +39,6 @@ export class AlchemyWsGateway implements IWeb3Gateway {
 
   public get signer(): Promise<Signer> {
     return Promise.resolve(this.wallet);
-  }
-
-  public get network(): APP_NETWORK {
-    return this.config.network;
   }
 
   public getCurrentBlock(): Promise<number> {

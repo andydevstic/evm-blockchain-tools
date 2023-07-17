@@ -9,6 +9,7 @@ export class AlchemyGateway implements IWeb3Gateway {
   protected _alchemy: Alchemy;
   protected _provider: ethers.providers.AlchemyProvider;
   public wallet: Wallet;
+  public network = APP_NETWORK.ETH;
 
   constructor(protected config: AlchemyGatewayConfig) {
     this._alchemy = new Alchemy({
@@ -23,10 +24,6 @@ export class AlchemyGateway implements IWeb3Gateway {
     this.wallet = new Wallet(config.privateKey, alchemyProvider);
 
     this._provider = alchemyProvider;
-  }
-
-  public get network(): APP_NETWORK {
-    return this.config.network;
   }
 
   public async getGasPrice(): Promise<string> {

@@ -10,12 +10,13 @@ export interface IERC20Model extends ContractModel {
   burnFrom(address: string, amount: string): Promise<Waitable>;
 }
 
-export abstract class ERC20ContractModel
-  extends ContractModel
-  implements IERC20Model
-{
+export class ERC20ContractModel extends ContractModel implements IERC20Model {
   constructor(address: string, abi: any, signer: Signer) {
     super(address, abi, signer);
+  }
+
+  public async transfer(address: string, amount: string): Promise<Waitable> {
+    return this.contract.transfer(address, amount);
   }
 
   public async balanceOf(address: string): Promise<string> {

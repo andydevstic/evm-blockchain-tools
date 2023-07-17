@@ -9,6 +9,7 @@ export class BscGateway implements IWeb3Gateway {
   protected web3: Web3;
   public provider: ethers.providers.JsonRpcProvider;
   public wallet: Wallet;
+  public network = APP_NETWORK.BINANCE;
 
   constructor(protected config: BscGatewayConfig) {
     this.provider = new ethers.providers.JsonRpcProvider(this.config.httpsUrl, {
@@ -21,10 +22,6 @@ export class BscGateway implements IWeb3Gateway {
     return Promise.resolve(
       new ethers.Wallet(this.config.privateKey, this.provider)
     );
-  }
-
-  public get network(): APP_NETWORK {
-    return this.config.network;
   }
 
   public async getGasPrice(): Promise<string> {

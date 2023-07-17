@@ -13,6 +13,7 @@ import { APP_NETWORK, NETWORK_IDS } from "../common/constants";
 export class BscWsGateway implements IWeb3Gateway {
   public provider: ethers.providers.WebSocketProvider;
   public wallet: Wallet;
+  public network = APP_NETWORK.BINANCE;
 
   constructor(protected config: WsGatewayConfig & BscWsGatewayConfig) {
     const wsClient = new ReconnectingWebSocket(config.wsUrl, [], {
@@ -36,10 +37,6 @@ export class BscWsGateway implements IWeb3Gateway {
     return Promise.resolve(
       new ethers.Wallet(this.config.privateKey, this.provider)
     );
-  }
-
-  public get network(): APP_NETWORK {
-    return this.config.network;
   }
 
   public async getBlock(blockNumber: number): Promise<any> {

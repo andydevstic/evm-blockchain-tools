@@ -24,6 +24,17 @@ export enum NETWORK_IDS {
   BINANCE_TESTNET = 97,
 }
 
+export enum ALCHEMY_NETWORK {
+  HOMESTEAD = "homestead",
+  GOERLI = "goerli",
+  MATIC = "matic",
+  MACTIMUM = "maticmum",
+  ARBITRUM = "arbitrum",
+  ARBITRUM_GOERLI = "arbitrum-goerli",
+  OPTIMISM = "optimism",
+  OPTIMISM_GOERLI = "optimism-goerli",
+}
+
 export const OneEtherZeros = "000000000000000000";
 export const EMPTY_DATA = "0x";
 export const EMPTY_ADDRESS = "0x0000000000000000000000000000000000000000";

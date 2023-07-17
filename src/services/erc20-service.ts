@@ -1,14 +1,11 @@
 import { ContractService } from "./contract-service";
 import { ERC20ContractModel } from "../models/erc20-contract-model";
-import { APP_NETWORK } from "../common/constants";
+import { TransactionResponse } from "../common/interfaces";
 
 export class ERC20Service extends ContractService<ERC20ContractModel> {
   public static TRANSFER_FN_SIG = "transfer()";
 
-  constructor(
-    protected network: APP_NETWORK,
-    protected contract: ERC20ContractModel
-  ) {
+  constructor(protected contract: ERC20ContractModel) {
     super(contract);
   }
 
@@ -16,6 +13,15 @@ export class ERC20Service extends ContractService<ERC20ContractModel> {
     const bn = await this.contract.balanceOf(address);
 
     return bn.toString();
+  }
+
+  public async transfer(
+    address: string,
+    amount: string
+  ): Promise<TransactionResponse> {
+    const tx = await this.contract.transfer(address, amount);
+
+    return tx.wait();
   }
 
   public async mint(address: string, amount: string): Promise<void> {

@@ -9,6 +9,8 @@ export class TronGateway implements IWeb3Gateway {
   protected signerAddress: string;
   public wallet: Wallet;
 
+  public network = APP_NETWORK.TRON;
+
   constructor(protected configService: TronGatewayConfig) {
     this._tron = new TronWeb({
       fullHost: configService.fullHostUrl,
@@ -25,10 +27,6 @@ export class TronGateway implements IWeb3Gateway {
 
   public get signer(): Promise<Signer> {
     return this._tron.trx.getAccount(this.signerAddress);
-  }
-
-  public get network(): APP_NETWORK {
-    return APP_NETWORK.TRON;
   }
 
   public async getCurrentBlock(): Promise<number> {
