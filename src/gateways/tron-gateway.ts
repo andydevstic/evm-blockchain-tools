@@ -3,6 +3,7 @@ import { Signer, Wallet } from "ethers";
 
 import { IWeb3Gateway, TronGatewayConfig } from "../common/interfaces";
 import { APP_NETWORK } from "../common/constants";
+import { isValidTronTxFormat } from "../utils";
 
 export class TronGateway implements IWeb3Gateway {
   protected _tron: any;
@@ -33,6 +34,10 @@ export class TronGateway implements IWeb3Gateway {
     const blockData = await this._tron.trx.getCurrentBlock();
 
     return blockData?.block_header?.raw_data?.number;
+  }
+
+  public ixValidTxFormat(txHash: string): boolean {
+    return isValidTronTxFormat(txHash);
   }
 
   public getBlock(blockNumber: number) {

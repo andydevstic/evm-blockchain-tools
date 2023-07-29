@@ -4,6 +4,7 @@ import { hashMessage } from "@ethersproject/hash";
 
 import { AlchemyGatewayConfig, IWeb3Gateway } from "../common/interfaces";
 import { APP_NETWORK } from "../common/constants";
+import { isValidEvmTxFormat } from "../utils";
 
 export class AlchemyGateway implements IWeb3Gateway {
   protected _alchemy: Alchemy;
@@ -37,6 +38,10 @@ export class AlchemyGateway implements IWeb3Gateway {
     signedMessage: string
   ): Promise<string> {
     return ethers.utils.recoverAddress(hashMessage(message), signedMessage);
+  }
+
+  public ixValidTxFormat(txHash: string): boolean {
+    return isValidEvmTxFormat(txHash);
   }
 
   public getCurrentBlock(): Promise<number> {

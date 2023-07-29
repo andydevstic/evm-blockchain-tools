@@ -4,6 +4,7 @@ import { hashMessage } from "@ethersproject/hash";
 
 import { BscGatewayConfig, IWeb3Gateway } from "../common/interfaces";
 import { APP_NETWORK, NETWORK_IDS } from "../common/constants";
+import { isValidEvmTxFormat } from "../utils";
 
 export class BscGateway implements IWeb3Gateway {
   protected web3: Web3;
@@ -28,6 +29,10 @@ export class BscGateway implements IWeb3Gateway {
     const gasPrice = await this.provider.getGasPrice();
 
     return gasPrice.toString();
+  }
+
+  public ixValidTxFormat(txHash: string): boolean {
+    return isValidEvmTxFormat(txHash);
   }
 
   public async getBlock(blockNumber: number): Promise<any> {

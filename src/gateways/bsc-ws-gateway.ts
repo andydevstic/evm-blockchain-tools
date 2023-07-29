@@ -9,6 +9,7 @@ import {
   WsGatewayConfig,
 } from "../common/interfaces";
 import { APP_NETWORK, NETWORK_IDS } from "../common/constants";
+import { isValidEvmTxFormat } from "../utils";
 
 export class BscWsGateway implements IWeb3Gateway {
   public provider: ethers.providers.WebSocketProvider;
@@ -31,6 +32,10 @@ export class BscWsGateway implements IWeb3Gateway {
     const gasPrice = await this.provider.getGasPrice();
 
     return gasPrice.toString();
+  }
+
+  public ixValidTxFormat(txHash: string): boolean {
+    return isValidEvmTxFormat(txHash);
   }
 
   public get signer(): Promise<Signer> {

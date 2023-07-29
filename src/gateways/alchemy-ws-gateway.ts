@@ -10,6 +10,7 @@ import {
   WsGatewayConfig,
 } from "../common/interfaces";
 import { APP_NETWORK } from "../common/constants";
+import { isValidEvmTxFormat } from "../utils";
 
 export class AlchemyWsGateway implements IWeb3Gateway {
   protected _alchemy: Alchemy;
@@ -43,6 +44,10 @@ export class AlchemyWsGateway implements IWeb3Gateway {
 
   public getCurrentBlock(): Promise<number> {
     return this._provider.getBlockNumber();
+  }
+
+  public ixValidTxFormat(txHash: string): boolean {
+    return isValidEvmTxFormat(txHash);
   }
 
   public async recoverSigner(
