@@ -40,7 +40,7 @@ export class AlchemyGateway implements IWeb3Gateway {
     return ethers.utils.recoverAddress(hashMessage(message), signedMessage);
   }
 
-  public ixValidTxFormat(txHash: string): boolean {
+  public isValidTxFormat(txHash: string): boolean {
     return isValidEvmTxFormat(txHash);
   }
 

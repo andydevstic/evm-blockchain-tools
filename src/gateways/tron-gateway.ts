@@ -36,7 +36,7 @@ export class TronGateway implements IWeb3Gateway {
     return blockData?.block_header?.raw_data?.number;
   }
 
-  public ixValidTxFormat(txHash: string): boolean {
+  public isValidTxFormat(txHash: string): boolean {
     return isValidTronTxFormat(txHash);
   }
 

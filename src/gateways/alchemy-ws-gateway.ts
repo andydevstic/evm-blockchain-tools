@@ -46,7 +46,7 @@ export class AlchemyWsGateway implements IWeb3Gateway {
     return this._provider.getBlockNumber();
   }
 
-  public ixValidTxFormat(txHash: string): boolean {
+  public isValidTxFormat(txHash: string): boolean {
     return isValidEvmTxFormat(txHash);
   }
 

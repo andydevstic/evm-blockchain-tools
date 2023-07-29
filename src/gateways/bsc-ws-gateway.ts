@@ -34,7 +34,7 @@ export class BscWsGateway implements IWeb3Gateway {
     return gasPrice.toString();
   }
 
-  public ixValidTxFormat(txHash: string): boolean {
+  public isValidTxFormat(txHash: string): boolean {
     return isValidEvmTxFormat(txHash);
   }
 

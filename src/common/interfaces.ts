@@ -99,7 +99,7 @@ export interface IWeb3Gateway {
   init?(): Promise<void>;
   getSignerAddress(): Promise<string>;
   getBlock(blockNumber: number): Promise<ethers.providers.Block>;
-  ixValidTxFormat(txHash: string): boolean;
+  isValidTxFormat(txHash: string): boolean;
   getTransactionByID(
     txID: string
   ): Promise<ethers.providers.TransactionResponse>;
