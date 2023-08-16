@@ -51,10 +51,9 @@ export class Web3GatewayRegistry {
   public getTronProvider(
     fullHostURL: string,
     apiKey: string,
-    privateKey: string,
-    signerAddress: string
+    privateKey: string
   ): IWeb3Gateway {
-    const hashKey = `${fullHostURL}_${apiKey}_${privateKey}_${signerAddress}`;
+    const hashKey = `${fullHostURL}_${apiKey}_${privateKey}`;
 
     if (this.registry.has(hashKey)) {
       return this.registry.get(hashKey);
