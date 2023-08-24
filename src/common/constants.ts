@@ -27,18 +27,15 @@ export enum NETWORK_IDS {
 }
 
 export enum ALCHEMY_NETWORK {
-  ETH_MAINNET = "eth-mainnet",
-  ETH_GOERLI = "eth-goerli",
-  ETH_SEPOLIA = "eth-sepolia",
-  OPT_MAINNET = "opt-mainnet",
-  OPT_GOERLI = "opt-goerli",
-  ARB_MAINNET = "arb-mainnet",
-  ARB_GOERLI = "arb-goerli",
-  MATIC_MAINNET = "polygon-mainnet",
-  MATIC_MUMBAI = "polygon-mumbai",
-  ASTAR_MAINNET = "astar-mainnet",
-  POLYGONZKEVM_MAINNET = "polygonzkevm-mainnet",
-  POLYGONZKEVM_TESTNET = "polygonzkevm-testnet",
+  HOMESTEAD = "homestead",
+  GOERLI = "goerli",
+  SEPOLIA = "sepolia",
+  MATIC = "matic",
+  MACTIMUM = "maticmum",
+  ARBITRUM = "arbitrum",
+  ARBITRUM_GOERLI = "arbitrum-goerli",
+  OPTIMISM = "optimism",
+  OPTIMISM_GOERLI = "optimism-goerli",
 }
 
 export const OneEtherZeros = "000000000000000000";
