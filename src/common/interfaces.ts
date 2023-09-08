@@ -75,12 +75,13 @@ export interface IWeb3GatewayFactory {
   createAlchemyProvider(
     apiKey: string,
     privateKey: string,
-    network: ALCHEMY_NETWORK
+    network?: ALCHEMY_NETWORK
   ): IWeb3Gateway;
 
   createQuicknodeProvider(
     quickNodeHttpsURL: string,
-    privateKey: string
+    privateKey: string,
+    network?: APP_NETWORK
   ): IWeb3Gateway;
 
   createTronProvider(
