@@ -1,4 +1,4 @@
-import { ALCHEMY_NETWORK } from "../common/constants";
+import { ALCHEMY_NETWORK, APP_NETWORK } from "../common/constants";
 import { IWeb3Gateway, IWeb3GatewayFactory } from "../common/interfaces";
 
 export class Web3GatewayRegistry {
@@ -9,7 +9,7 @@ export class Web3GatewayRegistry {
   public getAlchemyProvider(
     apiKey: string,
     privateKey: string,
-    network: ALCHEMY_NETWORK
+    network?: ALCHEMY_NETWORK
   ): IWeb3Gateway {
     const hashKey = `${apiKey}_${privateKey}_${network}`;
 
@@ -30,7 +30,8 @@ export class Web3GatewayRegistry {
 
   public getQuicknodeProvider(
     quickNodeHttpsURL: string,
-    privateKey: string
+    privateKey: string,
+    network?: APP_NETWORK
   ): IWeb3Gateway {
     const hashKey = `${quickNodeHttpsURL}_${privateKey}`;
 
@@ -40,7 +41,8 @@ export class Web3GatewayRegistry {
 
     const provider = this.web3GatewayFactory.createQuicknodeProvider(
       quickNodeHttpsURL,
-      privateKey
+      privateKey,
+      network
     );
 
     this.registry.set(hashKey, provider);
