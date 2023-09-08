@@ -13,9 +13,18 @@ export class BscGateway implements IWeb3Gateway {
   public network = APP_NETWORK.BINANCE;
 
   constructor(protected config: BscGatewayConfig) {
+    const name =
+      this.config.network === APP_NETWORK.BINANCE
+        ? APP_NETWORK.BINANCE
+        : APP_NETWORK.BINANCE_TESTNET;
+    const chainId =
+      this.config.network === APP_NETWORK.BINANCE
+        ? NETWORK_IDS.BINANCE
+        : NETWORK_IDS.BINANCE_TESTNET;
+
     this.provider = new ethers.providers.JsonRpcProvider(this.config.httpsUrl, {
-      name: this.config.network || APP_NETWORK.BINANCE,
-      chainId: this.config.chainId || NETWORK_IDS.BINANCE,
+      name,
+      chainId,
     });
   }
 
