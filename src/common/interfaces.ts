@@ -42,6 +42,7 @@ export interface BscGatewayConfig {
 
 export interface Waitable {
   wait(confirmations?: number): Promise<TransactionResponse>;
+  transactionHash: string;
 }
 
 export interface TransactionResponse {
