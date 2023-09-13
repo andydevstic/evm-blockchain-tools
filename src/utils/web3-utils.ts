@@ -18,12 +18,12 @@ export function encodeFunctionSignature(fnCall: any, params: string[]): string {
  */
 export async function getOptimizedGasPrice(
   gateway: IWeb3Gateway,
-  addupGas = BigNumber.from("1000000000"), // 1 GWei
-  minGas = BigNumber.from("5000000000") // 5 GWei
-): Promise<BigNumber> {
+  addupGas = "1000000000", // 1 GWei
+  minGas = "5000000000" // 5 GWei
+): Promise<string> {
   const gasPrice: BigNumber = await gateway.provider.getGasPrice();
 
   const newGas = gasPrice.add(addupGas);
 
-  return newGas.gte(minGas) ? newGas : minGas;
+  return newGas.gte(minGas) ? newGas.toString() : minGas;
 }
