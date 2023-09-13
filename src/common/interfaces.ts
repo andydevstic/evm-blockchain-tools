@@ -33,6 +33,11 @@ export interface BscWsGatewayConfig extends WsGatewayConfig {
   network: APP_NETWORK;
 }
 
+export interface ContractTxOption {
+  gasPrice?: string;
+  gasLimit?: string;
+}
+
 export interface BscGatewayConfig {
   httpsUrl: string;
   privateKey: string;
