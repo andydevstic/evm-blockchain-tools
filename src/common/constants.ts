@@ -1,7 +1,6 @@
-import { Network } from "alchemy-sdk";
-
 export enum APP_NETWORK {
   ETH = "mainnet",
+  ETHEREUM_MAINNET = "eth",
   GOERLI = "goerli",
   TRON = "trc",
   BINANCE = "bsc",
@@ -11,6 +10,12 @@ export enum APP_NETWORK {
 export enum ACCEPTED_CURRENCY {
   USDT = "USDT",
   USC = "USC",
+}
+
+export enum TOKEN_STANDARD {
+  ERC20 = "erc20",
+  BEP20 = "bep20",
+  TRC20 = "trc20",
 }
 
 export enum MULTISIG_TX_STATUS {

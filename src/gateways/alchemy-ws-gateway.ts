@@ -38,6 +38,10 @@ export class AlchemyWsGateway implements IWeb3Gateway {
     this._provider = alchemyProvider;
   }
 
+  public get provider() {
+    return this._provider;
+  }
+
   public get signer(): Promise<Signer> {
     return Promise.resolve(this.wallet);
   }

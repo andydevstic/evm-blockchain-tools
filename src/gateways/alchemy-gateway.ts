@@ -27,6 +27,10 @@ export class AlchemyGateway implements IWeb3Gateway {
     this._provider = alchemyProvider;
   }
 
+  public get provider() {
+    return this._provider;
+  }
+
   public async getGasPrice(): Promise<string> {
     const gasPrice = await this._provider.getGasPrice();
 
