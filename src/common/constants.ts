@@ -12,6 +12,12 @@ export enum ACCEPTED_CURRENCY {
   USC = "USC",
 }
 
+export enum BLOCKCHAIN_CHAIN {
+  ETH = "eth",
+  TRON = "trc",
+  BINANCE = "bsc",
+}
+
 export enum TOKEN_STANDARD {
   ERC20 = "erc20",
   BEP20 = "bep20",
