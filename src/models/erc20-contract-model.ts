@@ -4,6 +4,9 @@ import { ContractModel } from "./contract-model";
 import { ContractTxOption, Waitable } from "../common/interfaces";
 
 export interface IERC20Model extends ContractModel {
+  name(): Promise<string>;
+  symbol(): Promise<string>;
+  decimals(): Promise<string>;
   balanceOf(address: string): Promise<string>;
   mint(
     address: string,
@@ -35,6 +38,18 @@ export class ERC20ContractModel extends ContractModel implements IERC20Model {
     const bn = await this.contract.balanceOf(address);
 
     return bn.toString();
+  }
+
+  public name(): Promise<string> {
+    return this.contract.name();
+  }
+
+  public symbol(): Promise<string> {
+    return this.contract.symbol();
+  }
+
+  public decimals(): Promise<string> {
+    return this.contract.decimals();
   }
 
   public mint(
