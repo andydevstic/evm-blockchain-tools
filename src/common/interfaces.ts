@@ -28,6 +28,26 @@ export interface MultisigTxStatus {
   transactionHash?: string;
 }
 
+export interface TransferAmountData {
+  amount: string;
+  contractAddress: string;
+}
+
+export interface TransferValidationData {
+  userAddress: string;
+  destinationAddress: string;
+  amountData: TransferAmountData[];
+  signature: string;
+  signContent: string;
+  minConfirmations: number;
+}
+
+export interface TransferValidationResult {
+  isValid: boolean;
+  message?: string;
+  code?: string;
+}
+
 export interface BscWsGatewayConfig extends WsGatewayConfig {
   chainId?: number;
   network: APP_NETWORK;

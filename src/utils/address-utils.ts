@@ -13,6 +13,18 @@ export function parseAddressByNetwork(
   return address;
 }
 
+export function areAddressesSame(address1: string, address2: string): boolean {
+  if (!address1?.length) {
+    throw new Error("address1 must not be empty");
+  }
+
+  if (!address2?.length) {
+    throw new Error("address2 must not be empty");
+  }
+
+  return address1.toLowerCase() === address2.toLowerCase();
+}
+
 export function convertAddressToBytes32(address: string): string {
   const rawAddress = address.replace("0x", "");
 

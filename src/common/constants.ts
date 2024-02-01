@@ -12,6 +12,20 @@ export enum ACCEPTED_CURRENCY {
   USC = "USC",
 }
 
+export enum ERC20_FN_SIGNATURE {
+  TRANSFER = "transfer(address,uint256)",
+  SWAP_AND_ADD_USC = "swapAndAddUSC(uint256)",
+  SWAP_AND_ADD_USDT = "swapAndAddUSDT(uint256)",
+}
+
+export const ERR_CODE = {
+  INVALID_SIGNER_ADDRESS: "INVALID_SIGNER_ADDRESS".toLowerCase(),
+  NOT_TRANSFER_METHOD: "NOT_TRANSFER_METHOD".toLowerCase(),
+  INVALID_DESTINATION_ADDRESS: "INVALID_DESTINATION_ADDRESS".toLowerCase(),
+  INVALID_CURRENCY_OR_AMOUNT: "INVALID_CURRENCY_OR_AMOUNT".toLowerCase(),
+  CONFIRMATION_TOO_LOW: "CONFIRMATION_TOO_LOW".toLowerCase(),
+};
+
 export enum BLOCKCHAIN_CHAIN {
   ETH = "eth",
   TRON = "trc",
