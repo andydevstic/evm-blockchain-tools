@@ -46,6 +46,9 @@ export interface TransferValidationResult {
   isValid: boolean;
   message?: string;
   code?: string;
+  data?: {
+    amountData: TransferAmountData;
+  };
 }
 
 export interface BscWsGatewayConfig extends WsGatewayConfig {

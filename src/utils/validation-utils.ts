@@ -78,6 +78,7 @@ export async function validateERC20Transfer(
     };
   }
 
+  // Validates if the transferred amount is correct
   if (amountData?.length) {
     const foundValidTransferAmountData = amountData.find((data) => {
       const parsedAmount = ethers.utils.parseEther(data.amount);
@@ -98,6 +99,13 @@ export async function validateERC20Transfer(
         code: ERR_CODE.INVALID_CURRENCY_OR_AMOUNT,
       };
     }
+
+    return {
+      isValid: true,
+      data: {
+        amountData: foundValidTransferAmountData,
+      },
+    };
   }
 
   return {
