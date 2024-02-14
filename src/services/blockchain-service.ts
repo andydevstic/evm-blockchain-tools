@@ -45,7 +45,7 @@ export class BlockchainService {
     };
   }
 
-  public getFeeData() {
+  public getFeeData(): Promise<any> {
     return this.provider.provider.getFeeData();
   }
 
