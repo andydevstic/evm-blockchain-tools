@@ -45,6 +45,10 @@ export class BlockchainService {
     };
   }
 
+  public getFeeData() {
+    return this.provider.provider.getFeeData();
+  }
+
   public recoverMessageSigner(message: string, signature: string): string {
     const hashedMessage = hashMessage(message);
 
