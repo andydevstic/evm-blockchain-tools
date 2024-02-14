@@ -1,4 +1,4 @@
-import { Signer, ethers } from "ethers";
+import { BigNumber, Signer, ethers } from "ethers";
 
 import { ALCHEMY_NETWORK, APP_NETWORK, MULTISIG_TX_STATUS } from "./constants";
 import { Options } from "reconnecting-websocket";
@@ -59,6 +59,8 @@ export interface BscWsGatewayConfig extends WsGatewayConfig {
 export interface ContractTxOption {
   gasPrice?: string;
   gasLimit?: string;
+  maxPriorityFeePerGas?: BigNumber;
+  maxFeePerGas?: BigNumber;
 }
 
 export interface BscGatewayConfig {
