@@ -1,3 +1,5 @@
+import { BigNumber } from "ethers";
+
 export enum APP_NETWORK {
   ETH = "mainnet",
   ETHEREUM_MAINNET = "eth",
@@ -6,6 +8,9 @@ export enum APP_NETWORK {
   BINANCE = "bsc",
   BINANCE_TESTNET = "bnbt",
 }
+
+export const MinGas = BigNumber.from("3000000000"); // 3.0 Gwei
+export const AdditionalGas = BigNumber.from("1000000000"); // 1 Gwei
 
 export enum ACCEPTED_CURRENCY {
   USDT = "USDT",
