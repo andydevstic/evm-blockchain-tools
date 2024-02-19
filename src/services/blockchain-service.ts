@@ -22,7 +22,7 @@ export class BlockchainService {
     txId?: string
   ): Promise<Partial<ethers.utils.TransactionDescription>> {
     const erc20Abi = new ethers.utils.Interface(abis.erc20);
-    if (this.provider.network !== APP_NETWORK.TRON) {
+    if (this.provider?.network !== APP_NETWORK.TRON) {
       return erc20Abi.parseTransaction({
         data,
         value,
