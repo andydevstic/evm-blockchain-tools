@@ -101,6 +101,10 @@ export async function validateERC20Transfer(
       // Price diff between latest price and the transferred amount
       const priceDiff = parsedAmount.sub(transferredAmount);
 
+      if (priceDiff.eq(0)) {
+        return true;
+      }
+
       const calculated = Math.abs(parsedAmount.div(priceDiff).toNumber());
 
       const diffPercentage = 1 / calculated;
