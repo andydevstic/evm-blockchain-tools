@@ -105,9 +105,9 @@ export async function validateERC20Transfer(
         return true;
       }
 
-      const calculated = Math.abs(parsedAmount.div(priceDiff).toNumber());
+      const reversed = parsedAmount.div(priceDiff).abs();
 
-      const diffPercentage = 1 / calculated;
+      const diffPercentage = 1 / reversed.toNumber();
 
       return diffPercentage * 100 <= data.tolerancePercentage;
     });
