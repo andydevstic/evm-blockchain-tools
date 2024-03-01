@@ -1,4 +1,5 @@
-import { BigNumber, ethers } from "ethers";
+import { BigNumber, ethers, utils } from "ethers";
+import * as mathjs from "mathjs";
 
 import * as addressUtils from "./address-utils";
 
@@ -99,15 +100,21 @@ export async function validateERC20Transfer(
       }
 
       // Price diff between latest price and the transferred amount
-      const priceDiff = parsedAmount.sub(transferredAmount);
+      const parsedTransferredAmount = utils.formatEther(transferredAmount);
 
-      if (priceDiff.eq(0)) {
+      const priceDiff = mathjs.subtract(
+        Number(data.amount),
+        Number(parsedTransferredAmount)
+      );
+
+      if (priceDiff === 0) {
         return true;
       }
 
-      const reversed = parsedAmount.div(priceDiff).abs();
-
-      const diffPercentage = 1 / reversed.toNumber();
+      const diffPercentage = mathjs.divide(
+        priceDiff,
+        Number(parsedTransferredAmount)
+      );
 
       return diffPercentage * 100 <= data.tolerancePercentage;
     });

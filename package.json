@@ -32,6 +32,7 @@
     "@safe-global/safe-service-client": "^2.0.0",
     "alchemy-sdk": "^3.1.2",
     "ethers": "^5.7.2",
+    "mathjs": "^12.4.0",
     "reconnecting-websocket": "^4.4.0",
     "tron-tx-decoder": "^2.0.2",
     "tronweb": "^5.1.0",
