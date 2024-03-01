@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 
 import * as addressUtils from "./address-utils";
 
@@ -81,15 +81,31 @@ export async function validateERC20Transfer(
   // Validates if the transferred amount is correct
   if (amountData?.length) {
     const foundValidTransferAmountData = amountData.find((data) => {
-      const parsedAmount = ethers.utils.parseEther(data.amount);
-
-      return (
-        parsedAmount.eq(transferredAmount) &&
-        addressUtils.areAddressesSame(
+      if (
+        !addressUtils.areAddressesSame(
           calledContractAddress,
           data.contractAddress
         )
-      );
+      ) {
+        return false;
+      }
+
+      // The amount to validate against transferredAmount
+      const parsedAmount = ethers.utils.parseEther(data.amount);
+
+      // Exact match
+      if (!data.tolerancePercentage) {
+        return parsedAmount.eq(transferredAmount);
+      }
+
+      // Price diff between latest price and the transferred amount
+      const priceDiff = parsedAmount.sub(transferredAmount);
+
+      const calculated = Math.abs(parsedAmount.div(priceDiff).toNumber());
+
+      const diffPercentage = 1 / calculated;
+
+      return diffPercentage * 100 <= data.tolerancePercentage;
     });
 
     if (!foundValidTransferAmountData) {

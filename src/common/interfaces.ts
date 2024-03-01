@@ -31,6 +31,7 @@ export interface MultisigTxStatus {
 export interface TransferAmountData {
   amount: string;
   contractAddress: string;
+  tolerancePercentage?: number;
 }
 
 export interface TransferValidationData {
