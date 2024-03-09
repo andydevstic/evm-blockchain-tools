@@ -1,6 +1,6 @@
 {
   "name": "evm-blockchain-tools",
-  "version": "2.13.4",
+  "version": "2.13.5",
   "description": "This is a collection of resuseable tools to support development for EVM-powered blockchains",
   "main": "dist/index.js",
   "scripts": {
