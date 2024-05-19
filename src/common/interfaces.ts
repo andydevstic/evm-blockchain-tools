@@ -64,6 +64,13 @@ export interface ContractTxOption {
   maxFeePerGas?: BigNumber;
 }
 
+export interface EvmGatewayConfig {
+  httpsUrl: string;
+  privateKey: string;
+  chainId: number;
+  name: string;
+}
+
 export interface BscGatewayConfig {
   httpsUrl: string;
   privateKey: string;
