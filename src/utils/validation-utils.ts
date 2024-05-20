@@ -54,6 +54,21 @@ export async function validateERC20Transfer(
     }
   }
 
+  if (validationData.userAddress) {
+    if (
+      !addressUtils.areAddressesSame(
+        validationData.userAddress,
+        executorAddress
+      )
+    ) {
+      return {
+        isValid: false,
+        message: "executor is not user address",
+        code: ERR_CODE.INVALID_SIGNER_ADDRESS,
+      };
+    }
+  }
+
   const { args, signature: functionName } =
     await blockchainService.parseERC20TxByNetwork(data, value, txData.hash);
 
