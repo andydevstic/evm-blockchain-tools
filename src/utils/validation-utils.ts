@@ -90,7 +90,7 @@ export async function validateERC20Transfer(
     ) {
       return {
         isValid: false,
-        message: "invalid method",
+        message: "invalid destination address",
         code: ERR_CODE.INVALID_DESTINATION_ADDRESS,
       };
     }
