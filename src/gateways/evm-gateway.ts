@@ -5,9 +5,13 @@ import { hashMessage } from "@ethersproject/hash";
 import { EvmGatewayConfig, IWeb3Gateway } from "../common/interfaces";
 import { APP_NETWORK } from "../common/constants";
 import { isValidEvmTxFormat } from "../utils";
+import pino from "pino";
 
 export class EvmGateway implements IWeb3Gateway {
   protected web3: Web3;
+  protected keepAliveInterval: NodeJS.Timeout;
+  protected logger = pino();
+
   public provider: ethers.providers.JsonRpcProvider;
   public wallet: Wallet;
   public network = APP_NETWORK.BINANCE;
@@ -17,6 +21,44 @@ export class EvmGateway implements IWeb3Gateway {
       name: config.name,
       chainId: config.chainId,
     });
+
+    this.connect(config.name, config.chainId);
+  }
+
+  protected async checkConnection(): Promise<void> {
+    try {
+      await this.provider.getBlockNumber();
+    } catch (error) {
+      this.logger.error(`error checking connection: ${error.message}`);
+
+      this.connect(this.config.name, this.config.chainId);
+    }
+  }
+
+  protected connect(name: string, chainId: number): void {
+    if (this.keepAliveInterval) {
+      clearInterval(this.keepAliveInterval);
+    }
+
+    const provider = new ethers.providers.JsonRpcProvider(
+      this.config.httpsUrl,
+      {
+        name,
+        chainId,
+      }
+    );
+
+    provider.on("error", (err) => {
+      this.logger.error(`http connection error: ${err.message}`);
+
+      this.connect(name, chainId);
+    });
+
+    this.provider = provider;
+    this.keepAliveInterval = setInterval(
+      this.checkConnection.bind(this),
+      1000 * 60 * 10
+    ); // polls every 10 mins
   }
 
   public get signer(): Promise<Signer> {
