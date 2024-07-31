@@ -27,6 +27,8 @@ export class EvmGateway implements IWeb3Gateway {
 
   protected async checkConnection(): Promise<void> {
     try {
+      const network = await this.provider.getNetwork();
+      this.logger.info(`connection ok. chainId is ${network.chainId}`);
       const blockNumber = await this.provider.getBlockNumber();
       this.logger.info(`connection ok. latest block is ${blockNumber}`);
     } catch (error) {
