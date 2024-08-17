@@ -161,3 +161,76 @@ export async function validateERC20Transfer(
     };
   }
 }
+
+export async function validateEtherTransfer(
+  txData: ethers.providers.TransactionResponse,
+  validationData: Partial<Omit<TransferValidationData, "amountData">>,
+  blockchainService = new BlockchainService(null)
+): Promise<TransferValidationResult> {
+  try {
+    const {
+      from: executorAddress,
+      to: recipientAddress,
+      confirmations,
+    } = txData;
+    const {
+      signature,
+      signContent,
+      destinationAddress,
+      minConfirmations,
+      userAddress,
+    } = validationData;
+
+    if (minConfirmations && confirmations < minConfirmations) {
+      return {
+        isValid: false,
+        message: "confirmation too low",
+        code: ERR_CODE.CONFIRMATION_TOO_LOW,
+      };
+    }
+
+    // Validate signature to make sure the one submiting this is really the transaction executor
+    if (signature && signContent) {
+      const signerAddress = blockchainService.recoverMessageSigner(
+        signContent,
+        signature
+      );
+
+      if (!addressUtils.areAddressesSame(signerAddress, executorAddress)) {
+        return {
+          isValid: false,
+          message: "signer is not transaction executor",
+          code: ERR_CODE.INVALID_SIGNER_ADDRESS,
+        };
+      }
+    }
+
+    if (
+      userAddress &&
+      !addressUtils.areAddressesSame(userAddress, executorAddress)
+    ) {
+      return {
+        isValid: false,
+        message: "executor is not user address",
+        code: ERR_CODE.INVALID_SIGNER_ADDRESS,
+      };
+    }
+
+    if (!addressUtils.areAddressesSame(recipientAddress, destinationAddress)) {
+      return {
+        isValid: false,
+        message: "invalid recipient address",
+        code: ERR_CODE.INVALID_DESTINATION_ADDRESS,
+      };
+    }
+
+    return {
+      isValid: true,
+    };
+  } catch (error) {
+    return {
+      isValid: false,
+      message: error.message,
+    };
+  }
+}
