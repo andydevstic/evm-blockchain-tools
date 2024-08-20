@@ -29,7 +29,7 @@ export interface MultisigTxStatus {
 }
 
 export interface TransferAmountData {
-  amount: string;
+  amount?: string;
   contractAddress: string;
   tolerancePercentage?: number;
 }

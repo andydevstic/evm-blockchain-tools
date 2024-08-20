@@ -107,6 +107,11 @@ export async function validateERC20Transfer(
           return false;
         }
 
+        // Don't validata amount. Just validate contract
+        if (!data.amount) {
+          return true;
+        }
+
         // The amount to validate against transferredAmount
         const parsedAmount = ethers.utils.parseEther(data.amount);
 
