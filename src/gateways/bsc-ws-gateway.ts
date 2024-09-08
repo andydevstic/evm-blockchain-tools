@@ -17,23 +17,30 @@ export class BscWsGateway implements IWeb3Gateway {
   public network = APP_NETWORK.BINANCE;
 
   constructor(protected config: WsGatewayConfig & BscWsGatewayConfig) {
-    const wsClient = new ReconnectingWebSocket(config.wsUrl, [], {
+    this.connect();
+  }
+
+  protected get networkName() {
+    return this.config.network === APP_NETWORK.BINANCE
+      ? APP_NETWORK.BINANCE
+      : APP_NETWORK.BINANCE_TESTNET;
+  }
+
+  protected get chainId() {
+    return this.config.network === APP_NETWORK.BINANCE
+      ? NETWORK_IDS.BINANCE
+      : NETWORK_IDS.BINANCE_TESTNET;
+  }
+
+  public connect(): void {
+    const wsClient = new ReconnectingWebSocket(this.config.wsUrl, [], {
       WebSocket: Ws,
-      ...(config.options || {}),
+      ...(this.config.options || {}),
     });
 
-    const name =
-      this.config.network === APP_NETWORK.BINANCE
-        ? APP_NETWORK.BINANCE
-        : APP_NETWORK.BINANCE_TESTNET;
-    const chainId =
-      this.config.network === APP_NETWORK.BINANCE
-        ? NETWORK_IDS.BINANCE
-        : NETWORK_IDS.BINANCE_TESTNET;
-
     this.provider = new ethers.providers.WebSocketProvider(wsClient, {
-      name,
-      chainId,
+      name: this.network,
+      chainId: this.chainId,
     });
   }
 

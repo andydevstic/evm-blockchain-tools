@@ -12,18 +12,20 @@ export class TronGateway implements IWeb3Gateway {
 
   public network = APP_NETWORK.TRON;
 
-  constructor(protected configService: TronGatewayConfig) {
-    this._tron = new TronWeb({
-      fullHost: configService.fullHostUrl,
-      headers: {
-        "TRON-PRO-API-KEY": configService.apiKey,
-      },
-      privateKey: configService.privateKey,
-    });
+  constructor(protected config: TronGatewayConfig) {
+    this.signerAddress = this._tron.address.fromPrivateKey(config.privateKey);
 
-    this.signerAddress = this._tron.address.fromPrivateKey(
-      this.configService.privateKey
-    );
+    this.connect();
+  }
+
+  public connect(): void {
+    this._tron = new TronWeb({
+      fullHost: this.config.fullHostUrl,
+      headers: {
+        "TRON-PRO-API-KEY": this.config.apiKey,
+      },
+      privateKey: this.config.privateKey,
+    });
   }
 
   public get signer(): Promise<Signer> {

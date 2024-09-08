@@ -17,28 +17,21 @@ export class EvmGateway implements IWeb3Gateway {
   public network = APP_NETWORK.BINANCE;
 
   constructor(protected config: EvmGatewayConfig) {
-    this.provider = new ethers.providers.JsonRpcProvider(this.config.httpsUrl, {
-      name: config.name,
-      chainId: config.chainId,
-    });
-
-    this.connect(config.name, config.chainId);
+    this.connect();
   }
 
   protected async checkConnection(): Promise<void> {
     try {
-      const network = await this.provider.getNetwork();
-      this.logger.info(`connection ok. chainId is ${network.chainId}`);
-      const blockNumber = await this.provider.getBlockNumber();
-      this.logger.info(`connection ok. latest block is ${blockNumber}`);
+      await this.provider.getNetwork();
+      await this.provider.getBlockNumber();
     } catch (error) {
       this.logger.error(`error checking connection: ${error.message}`);
 
-      this.connect(this.config.name, this.config.chainId);
+      this.connect();
     }
   }
 
-  protected connect(name: string, chainId: number): void {
+  public connect(): void {
     if (this.keepAliveInterval) {
       clearInterval(this.keepAliveInterval);
     }
@@ -46,22 +39,22 @@ export class EvmGateway implements IWeb3Gateway {
     const provider = new ethers.providers.JsonRpcProvider(
       this.config.httpsUrl,
       {
-        name,
-        chainId,
+        name: this.config.name,
+        chainId: this.config.chainId,
       }
     );
 
     provider.on("error", (err) => {
       this.logger.error(`http connection error: ${err.message}`);
 
-      this.connect(name, chainId);
+      this.connect();
     });
 
     this.provider = provider;
     this.keepAliveInterval = setInterval(
       this.checkConnection.bind(this),
-      1000 * 60 * 10
-    ); // polls every 10 mins
+      1000 * 60 * 3
+    ); // polls every 3 mins
   }
 
   public get signer(): Promise<Signer> {

@@ -23,17 +23,21 @@ export class AlchemyWsGateway implements IWeb3Gateway {
       apiKey: config.apiKey,
     });
 
-    const wsClient = new ReconnectingWebSocket(config.wsUrl, [], {
+    this.connect();
+  }
+
+  public connect(): void {
+    const wsClient = new ReconnectingWebSocket(this.config.wsUrl, [], {
       WebSocket: Ws,
-      ...(config.options || {}),
+      ...(this.config.options || {}),
     });
 
     const alchemyProvider = new ethers.providers.WebSocketProvider(
       wsClient,
-      config.apiKey
+      this.config.apiKey
     );
 
-    this.wallet = new Wallet(config.privateKey, alchemyProvider);
+    this.wallet = new Wallet(this.config.privateKey, alchemyProvider);
 
     this._provider = alchemyProvider;
   }

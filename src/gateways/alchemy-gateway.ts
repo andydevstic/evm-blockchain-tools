@@ -17,18 +17,22 @@ export class AlchemyGateway implements IWeb3Gateway {
       apiKey: config.apiKey,
     });
 
-    const alchemyProvider = new ethers.providers.AlchemyProvider(
-      config.network,
-      config.apiKey
-    );
-
-    this.wallet = new Wallet(config.privateKey, alchemyProvider);
-
-    this._provider = alchemyProvider;
+    this.connect();
   }
 
   public get provider() {
     return this._provider;
+  }
+
+  public connect(): void {
+    const alchemyProvider = new ethers.providers.AlchemyProvider(
+      this.config.network,
+      this.config.apiKey
+    );
+
+    this.wallet = new Wallet(this.config.privateKey, alchemyProvider);
+
+    this._provider = alchemyProvider;
   }
 
   public async getGasPrice(): Promise<string> {

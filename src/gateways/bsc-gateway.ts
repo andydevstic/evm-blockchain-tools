@@ -16,42 +16,34 @@ export class BscGateway implements IWeb3Gateway {
   public wallet: Wallet;
   public network = APP_NETWORK.BINANCE;
 
-  constructor(protected config: BscGatewayConfig) {
-    const name =
-      this.config.network === APP_NETWORK.BINANCE
-        ? APP_NETWORK.BINANCE
-        : APP_NETWORK.BINANCE_TESTNET;
-    const chainId =
-      this.config.network === APP_NETWORK.BINANCE
-        ? NETWORK_IDS.BINANCE
-        : NETWORK_IDS.BINANCE_TESTNET;
+  protected get networkName() {
+    return this.config.network === APP_NETWORK.BINANCE
+      ? APP_NETWORK.BINANCE
+      : APP_NETWORK.BINANCE_TESTNET;
+  }
 
-    this.connect(name, chainId);
+  protected get chainId() {
+    return this.config.network === APP_NETWORK.BINANCE
+      ? NETWORK_IDS.BINANCE
+      : NETWORK_IDS.BINANCE_TESTNET;
+  }
+
+  constructor(protected config: BscGatewayConfig) {
+    this.connect();
   }
 
   protected async checkConnection(): Promise<void> {
     try {
-      const network = await this.provider.getNetwork();
-      this.logger.info(`connection ok. chainId is ${network.chainId}`);
-      const blockNumber = await this.provider.getBlockNumber();
-      this.logger.info(`connection ok. latest block is ${blockNumber}`);
+      await this.provider.getNetwork();
+      await this.provider.getBlockNumber();
     } catch (error) {
       this.logger.error(`error checking connection: ${error.message}`);
 
-      const name =
-        this.config.network === APP_NETWORK.BINANCE
-          ? APP_NETWORK.BINANCE
-          : APP_NETWORK.BINANCE_TESTNET;
-      const chainId =
-        this.config.network === APP_NETWORK.BINANCE
-          ? NETWORK_IDS.BINANCE
-          : NETWORK_IDS.BINANCE_TESTNET;
-
-      this.connect(name, chainId);
+      this.connect();
     }
   }
 
-  protected connect(name: string, chainId: number): void {
+  public connect(): void {
     if (this.keepAliveInterval) {
       clearInterval(this.keepAliveInterval);
     }
@@ -59,22 +51,22 @@ export class BscGateway implements IWeb3Gateway {
     const provider = new ethers.providers.JsonRpcProvider(
       this.config.httpsUrl,
       {
-        name,
-        chainId,
+        name: this.networkName,
+        chainId: this.chainId,
       }
     );
 
     provider.on("error", (err) => {
       this.logger.error(`http connection error: ${err.message}`);
 
-      this.connect(name, chainId);
+      this.connect();
     });
 
     this.provider = provider;
     this.keepAliveInterval = setInterval(
       this.checkConnection.bind(this),
-      1000 * 60 * 10
-    ); // polls every 10 mins
+      1000 * 60 * 3
+    ); // polls every 3 mins
   }
 
   public get signer(): Promise<Signer> {

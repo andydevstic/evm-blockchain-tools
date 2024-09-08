@@ -137,6 +137,7 @@ export interface IWeb3Gateway {
   network: APP_NETWORK;
   signer: Promise<Signer>;
   provider?: any;
+  connect(): void;
   getCurrentBlock(): Promise<number>;
   getGasPrice(): Promise<string>;
   init?(): Promise<void>;
