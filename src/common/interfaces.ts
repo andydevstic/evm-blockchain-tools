@@ -3,10 +3,93 @@ import { BigNumber, Signer, ethers } from "ethers";
 import { ALCHEMY_NETWORK, APP_NETWORK, MULTISIG_TX_STATUS } from "./constants";
 import { Options } from "reconnecting-websocket";
 
+export interface TransactionHistoryStorage {
+  create<T = any>(data: Partial<T>, ...options: any[]): Promise<T>;
+  findTransactionsBySigner<T = any>(
+    signerAddress: string,
+    filters?: Record<any, any>
+  ): Promise<T[]>;
+  findSignerLastTransaction<T = any>(signerAddress: string): Promise<T>;
+  updateByTxHash<T = any>(txHash: string, payload: Partial<T>): Promise<void>;
+}
+
+export interface SignerPicker {
+  pick(address: string, signerList: Signer[]): Promise<Signer>;
+}
+
 export interface AlchemyGatewayConfig {
   apiKey: string;
   network?: ALCHEMY_NETWORK;
   privateKey: string;
+}
+
+export interface GenerateKeyPairResponse {
+  privateKey: string;
+  publicKey: string;
+}
+
+export interface GenerateContractTransactionData {
+  functionName: string;
+  data: any[];
+  nonce?: string;
+}
+
+export interface RecoverPrivateKeyData {
+  userSecret?: string;
+  serverSecret?: string;
+  recoverySecret?: string;
+  nonce: string;
+}
+
+export interface HasPrivateKey {
+  privateKey: string;
+}
+
+export interface WalletStorage {
+  getOne(filter: Record<any, any>): Promise<WithdrawWallet>;
+  getMany(filter: Record<any, any>): Promise<WithdrawWallet[]>;
+
+  paginate(
+    filter: Record<any, any>,
+    limit?: number,
+    offset?: number
+  ): Promise<WithdrawWallet[]>;
+  bulkCreate(data: Partial<WithdrawWallet>[]): Promise<WithdrawWallet[]>;
+}
+
+export interface CreateSlaveWalletData {
+  name: string;
+  tags: string[];
+  pin?: string;
+}
+
+export enum WALLET_TYPE {
+  MASTER = "master",
+  SLAVE = "slave",
+}
+
+export interface WithdrawWallet {
+  id: string;
+  name: string;
+  address: string;
+  type: WALLET_TYPE;
+  tags: string[];
+  nonce: string;
+  serverSecretPart: string;
+  userSecretPart: string;
+}
+
+export interface WithdrawWalletDTO {
+  id: string;
+  type: WALLET_TYPE;
+  name: string;
+  address: string;
+}
+
+export interface ConfigOptions {
+  privateKey: string;
+  defaultUserPin: string;
+  adminPin: string;
 }
 
 export interface WsGatewayConfig {
@@ -65,10 +148,10 @@ export interface ContractTxOption {
 }
 
 export interface EvmGatewayConfig {
-  httpsUrl: string;
+  httpsUrl?: string;
   privateKey: string;
-  chainId: number;
-  name: string;
+  chainId?: number;
+  name?: string;
 }
 
 export interface BscGatewayConfig {

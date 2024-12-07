@@ -19,7 +19,7 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    "allowJs": true,
+    "allowJs": true
   },
-  "include": ["./src", "./index.ts"],
+  "include": ["./src", "./index.ts", "tests/**/*.ts"]
 }

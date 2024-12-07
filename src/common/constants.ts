@@ -9,6 +9,16 @@ export enum APP_NETWORK {
   BINANCE_TESTNET = "bnbt",
 }
 
+export enum TransactionStatus {
+  SCHEDULED = "scheduled",
+  EXECUTED = "executed",
+  FAILED = "failed",
+}
+
+export enum TransactionReceiptStatus {
+  SUCCESS = 1,
+}
+
 export const MinGas = BigNumber.from("3000000000"); // 3.0 Gwei
 export const AdditionalGas = BigNumber.from("1000000000"); // 1 Gwei
 
@@ -16,6 +26,8 @@ export enum ACCEPTED_CURRENCY {
   USDT = "USDT",
   USC = "USC",
 }
+
+export const PRIVATE_KEY_SHARD_SIZE = 27;
 
 export enum ERC20_FN_SIGNATURE {
   TRANSFER = "transfer(address,uint256)",
