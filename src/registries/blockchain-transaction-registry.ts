@@ -1,5 +1,5 @@
 import pino from "pino";
-import { timeoutHelper } from "mvc-common-toolkit";
+import { TaskQueue, timeoutHelper, workflows } from "mvc-common-toolkit";
 import { BigNumber, Signer } from "ethers";
 
 import {
@@ -19,7 +19,8 @@ export class BlockchainTransactionRegistry {
 
   constructor(
     protected transactionStorage: TransactionHistoryStorage,
-    signerPicker: SignerPicker
+    signerPicker: SignerPicker,
+    protected taskQueue: TaskQueue
   ) {
     this.signerPicker =
       signerPicker || new RoundRobinSignerPicker(transactionStorage);
@@ -44,81 +45,90 @@ export class BlockchainTransactionRegistry {
       minGas?: string;
     }
   ) {
-    let generatedTxHash: string;
+    const signerPicker = options?.signerPicker || this.signerPicker;
+    const pickedSigner = await signerPicker.pick(
+      contract.address,
+      contract.signerList
+    );
 
-    try {
-      const signerPicker = options?.signerPicker || this.signerPicker;
-      const pickedSigner = await signerPicker.pick(
-        contract.address,
-        contract.signerList
-      );
+    const signerAddress = await pickedSigner.getAddress();
 
-      const signerAddress = await pickedSigner.getAddress();
+    const queueName = `signer_queue_${signerAddress.toLowerCase()}`;
+    const taskName = `exec_${method}_on${signerAddress}`;
 
-      const { isOverride, nextNonce } = await this.reconcileSignerLastTx(
-        pickedSigner,
-        signerAddress
-      );
+    // This makes sure parallelism for all signers not having to queue up
+    return this.taskQueue.push(queueName, taskName, async () => {
+      let generatedTxHash: string;
 
-      const gasPrice = await getOptimizedGasPriceV2(
-        pickedSigner.provider,
-        AdditionalGas.toString(),
-        options?.minGas || MinGas.toString(),
-        {
-          useOverringGas: isOverride,
-        }
-      );
-
-      const { signedTransaction, txHash } = await contract.generateTransaction(
-        {
-          data: params,
-          functionName: method,
-          nonce: nextNonce,
-        },
-        {
-          signer: pickedSigner,
-          gasPrice,
-        }
-      );
-
-      await this.transactionStorage.create({
-        nonce: nextNonce,
-        txHash,
-        signedTransaction,
-        signerAddress,
-        status: TransactionStatus.SCHEDULED,
-        metadata: {
-          isOverride,
-        },
-      });
-
-      generatedTxHash = txHash;
-
-      if (!contract.provider.sendTransaction) {
-        throw new Error("provider has no sendTransaction method");
-      }
-
-      await timeoutHelper.runWithTimeout(async () => {
-        const submittedTx = await pickedSigner.provider.sendTransaction(
-          signedTransaction
+      try {
+        const { isOverride, nextNonce } = await this.reconcileSignerLastTx(
+          pickedSigner,
+          signerAddress
         );
 
-        await submittedTx.wait(1);
+        const gasPrice = await getOptimizedGasPriceV2(
+          pickedSigner.provider,
+          AdditionalGas.toString(),
+          options?.minGas || MinGas.toString(),
+          {
+            useOverridingGas: isOverride,
+          }
+        );
 
-        await this.transactionStorage.updateByTxHash(txHash, {
-          status: "executed",
-        });
-      }, options?.timeoutInMs || 30000);
-    } catch (error) {
-      this.logger.error(error.message, error.stack);
+        const { signedTransaction, txHash } =
+          await contract.generateTransaction(
+            {
+              data: params,
+              functionName: method,
+              nonce: nextNonce,
+            },
+            {
+              signer: pickedSigner,
+              gasPrice,
+            }
+          );
 
-      if (generatedTxHash) {
-        await this.transactionStorage.updateByTxHash(generatedTxHash, {
-          status: TransactionStatus.FAILED,
-          metadata: error,
+        await this.transactionStorage.create({
+          nonce: nextNonce,
+          txHash,
+          signedTransaction,
+          signerAddress,
+          status: TransactionStatus.SCHEDULED,
+          metadata: {
+            isOverride,
+          },
         });
+
+        generatedTxHash = txHash;
+
+        if (!contract.provider.sendTransaction) {
+          throw new Error("provider has no sendTransaction method");
+        }
+
+        await timeoutHelper.runWithTimeout(async () => {
+          const submittedTx = await pickedSigner.provider.sendTransaction(
+            signedTransaction
+          );
+
+          await submittedTx.wait(1);
+
+          await this.transactionStorage.updateByTxHash(txHash, {
+            status: "executed",
+          });
+        }, options?.timeoutInMs || 30000);
+      } catch (error) {
+        this.logger.error(error.message, error.stack);
+
+        if (generatedTxHash) {
+          await this.transactionStorage.updateByTxHash(generatedTxHash, {
+            status: TransactionStatus.FAILED,
+            metadata: error,
+          });
+        }
+
+        throw error;
       }
-    }
+    });
   }
 
   /**

@@ -45,14 +45,14 @@ export async function getOptimizedGasPriceV2(
   addupGas = "1000000000", // 1 GWei
   minGas = "5000000000", // 5 GWei,
   option?: {
-    useOverringGas: boolean;
+    useOverridingGas: boolean;
   }
 ): Promise<string> {
   const gasPrice: BigNumber = await provider.getGasPrice();
 
   let newGas = gasPrice.add(addupGas);
 
-  if (option?.useOverringGas) {
+  if (option?.useOverridingGas) {
     newGas = newGas.add(addupGas);
   }
 

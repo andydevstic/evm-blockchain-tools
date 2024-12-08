@@ -35,7 +35,7 @@
     "ethers": "^5.7.2",
     "libsodium-wrappers": "^0.7.15",
     "mathjs": "^12.4.0",
-    "mvc-common-toolkit": "^1.35.1",
+    "mvc-common-toolkit": "^1.36.0",
     "pino": "^9.3.1",
     "reconnecting-websocket": "^4.4.0",
     "tron-tx-decoder": "^2.0.2",
