@@ -19,6 +19,14 @@ export abstract class ContractModel {
     this._signerList.push(signer);
   }
 
+  public setDefaultSigner(signer: Signer) {
+    if (!this._signerList.includes(signer)) {
+      throw new Error("signer is not in signer list");
+    }
+
+    this.signer = signer;
+  }
+
   public registerBackupSigner(signers: Signer[]): void {
     this._signerList.push(...signers);
   }
@@ -52,6 +60,7 @@ export abstract class ContractModel {
       params,
       {
         gasPrice: gasPrice.toString(),
+        signer,
       }
     );
 
@@ -82,9 +91,16 @@ export abstract class ContractModel {
     data: any[],
     options: {
       gasPrice: string;
+      signer?: Signer;
     }
   ): Promise<ethers.PopulatedTransaction> {
-    return this.contract.populateTransaction[functionName](...data, {
+    let contract = this.contract;
+
+    if (options.signer) {
+      contract = new Contract(this.address, this.abi, options.signer);
+    }
+
+    return contract.populateTransaction[functionName](...data, {
       gasPrice: options.gasPrice,
     });
   }
