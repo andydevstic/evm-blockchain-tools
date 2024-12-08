@@ -32,7 +32,7 @@ export abstract class ContractModel {
   }
 
   public get signerList(): Signer[] {
-    return [...this._signerList];
+    return this.signerList;
   }
 
   public removeSigner(signer: Signer): void {
