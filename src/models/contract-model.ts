@@ -54,6 +54,7 @@ export abstract class ContractModel {
     const params = data.data;
 
     const gasPrice = options?.gasPrice || (await signer.provider.getGasPrice());
+    const signerAddress = await signer.getAddress();
 
     const unsignedPopulatedTx = await this.populateTransaction(
       data.functionName,
@@ -72,7 +73,7 @@ export abstract class ContractModel {
 
     if (data.nonce && data.nonce > signerNextNonce) {
       throw new Error(
-        `signer next nonce ${signerNextNonce} is less than to passed nonce of ${data.nonce}`
+        `signer ${signerAddress} next nonce ${signerNextNonce} is less than to passed nonce of ${data.nonce}`
       );
     }
 
