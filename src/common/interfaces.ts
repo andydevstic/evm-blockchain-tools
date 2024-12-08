@@ -4,17 +4,17 @@ import { ALCHEMY_NETWORK, APP_NETWORK, MULTISIG_TX_STATUS } from "./constants";
 import { Options } from "reconnecting-websocket";
 
 export interface TransactionHistoryStorage {
-  create<T = any>(data: Partial<T>, ...options: any[]): Promise<T>;
-  findTransactionsBySigner<T = any>(
+  create(data: any, ...options: any[]): Promise<any>;
+  findTransactionsBySigner(
     signerAddress: string,
     filters?: Record<any, any>
-  ): Promise<T[]>;
+  ): Promise<any[]>;
   /**
    * @notice This function should sort transactions nonce DESC and status ASC (so EXECUTED comes before FAILED and SCHEDULED)
    * @param signerAddress
    */
-  findSignerLastTransaction<T = any>(signerAddress: string): Promise<T>;
-  updateByTxHash<T = any>(txHash: string, payload: Partial<T>): Promise<void>;
+  findSignerLastTransaction(signerAddress: string): Promise<any>;
+  updateByTxHash(txHash: string, payload: any): Promise<void>;
 }
 
 export interface SignerPicker {
