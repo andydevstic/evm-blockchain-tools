@@ -21,9 +21,8 @@ export class BlockchainTransactionRegistry {
     protected transactionStorage: TransactionHistoryStorage,
     signerPicker: SignerPicker
   ) {
-    if (!signerPicker) {
-      this.signerPicker = new RoundRobinSignerPicker(transactionStorage);
-    }
+    this.signerPicker =
+      signerPicker || new RoundRobinSignerPicker(transactionStorage);
   }
 
   /**
