@@ -54,7 +54,7 @@ export class BlockchainTransactionRegistry {
     const signerAddress = await pickedSigner.getAddress();
 
     const queueName = `signer_queue_${signerAddress.toLowerCase()}`;
-    const taskName = `exec_${method}_on${signerAddress}`;
+    const taskName = `exec_${method}`;
 
     // This makes sure parallelism for all signers not having to queue up
     return this.taskQueue.push(queueName, taskName, async () => {
@@ -125,8 +125,6 @@ export class BlockchainTransactionRegistry {
             metadata: error,
           });
         }
-
-        throw error;
       }
     });
   }
