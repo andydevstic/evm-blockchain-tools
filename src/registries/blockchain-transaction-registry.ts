@@ -133,8 +133,20 @@ export class BlockchainTransactionRegistry {
     signerAddress: string
   ): Promise<{ nextNonce: string; isOverride: boolean }> {
     // Notice: This function should sort transactions nonce DESC and status ASC (so EXECUTED comes before FAILED and SCHEDULED)
-    const { txHash, status, nonce } =
-      await this.transactionStorage.findSignerLastTransaction(signerAddress);
+    const lastTx = await this.transactionStorage.findSignerLastTransaction(
+      signerAddress
+    );
+
+    if (!lastTx) {
+      const count = await signer.getTransactionCount();
+
+      return {
+        nextNonce: String(count + 1),
+        isOverride: false,
+      };
+    }
+
+    const { txHash, status, nonce } = lastTx;
 
     if (status === TransactionStatus.SCHEDULED) {
       throw new Error(

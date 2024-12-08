@@ -68,6 +68,10 @@ export class RoundRobinSignerPicker implements SignerPicker {
             signerAddress
           );
 
+        if (!signerLastTx) {
+          return nextSigner;
+        }
+
         if (signerLastTx.status === TransactionStatus.SCHEDULED) {
           throw new Error(`signer ${signerAddress} is still busy`);
         }
