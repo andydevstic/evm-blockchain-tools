@@ -141,7 +141,7 @@ export class BlockchainTransactionRegistry {
       const count = await signer.getTransactionCount();
 
       return {
-        nextNonce: String(count + 1),
+        nextNonce: String(count),
         isOverride: false,
       };
     }
