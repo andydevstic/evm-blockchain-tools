@@ -26,6 +26,15 @@ export class BlockchainTransactionRegistry {
     }
   }
 
+  /**
+   * This function based on some assumptions:
+   * - The user of this class already implemented concurrency control
+   * - The providers are only used programmatically, with no ad-hoc transactions
+   * @param contract
+   * @param method
+   * @param params
+   * @param options
+   */
   public async sendContractTransaction(
     contract: ContractModel,
     method: string,
@@ -90,11 +99,11 @@ export class BlockchainTransactionRegistry {
         throw new Error("provider has no sendTransaction method");
       }
 
-      const submittedTx = await pickedSigner.provider.sendTransaction(
-        signedTransaction
-      );
-
       await timeoutHelper.runWithTimeout(async () => {
+        const submittedTx = await pickedSigner.provider.sendTransaction(
+          signedTransaction
+        );
+
         await submittedTx.wait(1);
 
         await this.transactionStorage.updateByTxHash(txHash, {
@@ -114,7 +123,9 @@ export class BlockchainTransactionRegistry {
   }
 
   /**
-   * Check if last tx was actually failed, if so then update its status to EXECUTED
+   * Check if last tx was actually failed, if so then update its status to EXECUTED.
+   * Edge case: The overriding tx failed, but the original timeout tx actually succeeded.
+   * In this scenario,
    * @param signer The picked signer
    * @param signerAddress The signer address
    */
@@ -122,6 +133,7 @@ export class BlockchainTransactionRegistry {
     signer: Signer,
     signerAddress: string
   ): Promise<{ nextNonce: string; isOverride: boolean }> {
+    // Notice: This function should sort transactions nonce DESC and status ASC (so EXECUTED comes before FAILED and SCHEDULED)
     const { txHash, status, nonce } =
       await this.transactionStorage.findSignerLastTransaction(signerAddress);
 
@@ -133,9 +145,11 @@ export class BlockchainTransactionRegistry {
 
     if (status === TransactionStatus.FAILED) {
       const foundTx = await signer.provider.getTransaction(txHash);
+      /**
+       * Last tx was not found, meaning it hasn't been accepted. This doesn't mean the transaction
+       * will not be picked, but we can TRY to override it.
+       */
       if (!foundTx) {
-        // last tx was not found, meaning it was never accepted. We can override it
-
         return {
           nextNonce: nonce,
           isOverride: true,

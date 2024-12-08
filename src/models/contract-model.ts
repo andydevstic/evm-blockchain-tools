@@ -19,8 +19,8 @@ export abstract class ContractModel {
     this._signerList.push(signer);
   }
 
-  public registerBackupSigner(signer: Signer): void {
-    this._signerList.push(signer);
+  public registerBackupSigner(signers: Signer[]): void {
+    this._signerList.push(...signers);
   }
 
   public get signerList(): Signer[] {
@@ -41,7 +41,7 @@ export abstract class ContractModel {
       signer?: Signer;
       gasPrice?: string;
     }
-  ): Promise<{ txHash: string; signedTransaction: string; nonce: string }> {
+  ): Promise<{ txHash: string; signedTransaction: string }> {
     const signer = options?.signer || this.signer;
     const params = data.data;
 
@@ -61,9 +61,9 @@ export abstract class ContractModel {
 
     const signerNextNonce = signerPopulatedTx.nonce.toString();
 
-    if (data.nonce && data.nonce !== signerNextNonce) {
+    if (data.nonce && data.nonce > signerNextNonce) {
       throw new Error(
-        `signer next nonce ${signerNextNonce} is not equal to passed nonce of ${data.nonce}`
+        `signer next nonce ${signerNextNonce} is less than to passed nonce of ${data.nonce}`
       );
     }
 
@@ -74,7 +74,6 @@ export abstract class ContractModel {
     return {
       txHash: preCalculatedHash,
       signedTransaction,
-      nonce: signerNextNonce,
     };
   }
 

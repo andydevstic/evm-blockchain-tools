@@ -9,6 +9,10 @@ export interface TransactionHistoryStorage {
     signerAddress: string,
     filters?: Record<any, any>
   ): Promise<T[]>;
+  /**
+   * @notice This function should sort transactions nonce DESC and status ASC (so EXECUTED comes before FAILED and SCHEDULED)
+   * @param signerAddress
+   */
   findSignerLastTransaction<T = any>(signerAddress: string): Promise<T>;
   updateByTxHash<T = any>(txHash: string, payload: Partial<T>): Promise<void>;
 }

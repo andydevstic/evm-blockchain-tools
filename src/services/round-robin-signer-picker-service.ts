@@ -59,6 +59,10 @@ export class RoundRobinSignerPicker implements SignerPicker {
 
         const nextSigner = this._signerMap.get(address)[nextIndex];
         const signerAddress = await nextSigner.getAddress();
+
+        // Check if signer is still alive
+        await nextSigner.getChainId();
+
         const signerLastTx =
           await this.transactionStorage.findSignerLastTransaction(
             signerAddress
@@ -81,7 +85,7 @@ export class RoundRobinSignerPicker implements SignerPicker {
     const result = await retryTask.run<OperationResult<Signer>>();
 
     if (!result.success) {
-      throw new Error("all signers are busy");
+      throw new Error("all signers are busy or unavailable");
     }
 
     return result.data;

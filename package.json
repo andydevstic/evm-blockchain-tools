@@ -47,13 +47,14 @@
   "devDependencies": {
     "@types/chai": "^4.3.4",
     "@types/mocha": "^10.0.1",
+    "@types/mongoose": "^5.11.97",
     "@types/sinon": "^10.0.14",
     "@types/web3": "^1.2.2",
     "@types/ws": "^8.5.4",
-    "chai": "^4.3.7",
+    "chai": "^4.5.0",
     "mocha": "^10.2.0",
     "rimraf": "^5.0.0",
-    "sinon": "^15.0.3",
+    "sinon": "^15.2.0",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.0.4"
