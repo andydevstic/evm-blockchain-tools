@@ -11,7 +11,7 @@ export class RoundRobinSignerPicker implements SignerPicker {
   constructor(protected transactionStorage: TransactionHistoryStorage) {}
 
   protected resetSignerData(address: string, signerList: Signer[]) {
-    this._signerMap.set(address, [...signerList]);
+    this._signerMap.set(address, signerList);
     this._signerCallingMap.set(address, 0);
   }
 
