@@ -2,9 +2,7 @@ import { ContractModel } from "../models";
 import { BLOCKCHAIN_CHAIN } from "../common/constants";
 
 export class ContractRegistry {
-  protected registry: Map<string, any>;
-
-  constructor() {}
+  protected registry: Map<string, any> = new Map();
 
   protected buildHashKey(
     network: BLOCKCHAIN_CHAIN,
