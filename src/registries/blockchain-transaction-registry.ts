@@ -46,10 +46,7 @@ export class BlockchainTransactionRegistry {
     }
   ) {
     const signerPicker = options?.signerPicker || this.signerPicker;
-    const pickedSigner = await signerPicker.pick(
-      contract.address,
-      contract.signerList
-    );
+    const pickedSigner = await signerPicker.pick(contract.address, []);
 
     const signerAddress = await pickedSigner.getAddress();
 
@@ -75,7 +72,7 @@ export class BlockchainTransactionRegistry {
           }
         );
 
-        const { signedTransaction, txHash } =
+        const { signedTransaction, preCalculatedHash: txHash } =
           await contract.generateTransaction(
             {
               data: params,
@@ -83,7 +80,6 @@ export class BlockchainTransactionRegistry {
               nonce: nextNonce,
             },
             {
-              signer: pickedSigner,
               gasPrice,
             }
           );
