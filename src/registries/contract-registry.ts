@@ -1,12 +1,5 @@
 import { ContractModel } from "../models";
 import { BLOCKCHAIN_CHAIN } from "../common/constants";
-import { Signer } from "ethers";
-
-export type ContractConstructor<T extends ContractModel> = (
-  address: string,
-  abi: any,
-  signer: Signer
-) => T;
 
 export class ContractRegistry {
   protected registry: Map<string, any>;
@@ -35,19 +28,16 @@ export class ContractRegistry {
   }
 
   public async registerContract<T extends ContractModel>(
-    constructor: ContractConstructor<T>,
+    contract: T,
     address: string,
     network: BLOCKCHAIN_CHAIN,
-    abi: any,
-    signer: Signer
+    signerName: string
   ): Promise<void> {
-    const signerAddress = await signer.getAddress();
-    const hashKey = this.buildHashKey(network, address, signerAddress);
+    const hashKey = this.buildHashKey(network, address, signerName);
     if (this.registry.has(hashKey)) {
       return;
     }
 
-    const contract = constructor(address, abi, signer);
     this.registry.set(hashKey, contract);
   }
 }
