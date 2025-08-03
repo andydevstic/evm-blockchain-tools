@@ -14,6 +14,13 @@ export interface TransactionHistoryStorage {
    * @param signerAddress
    */
   findSignerLastTransaction(signerAddress: string): Promise<any>;
+  /**
+   * @notice This function return the transactions with the last nonce (original + overriding txs)
+   * @param signerAddress
+   */
+  findSignerLastTransactions(signerAddress: string): Promise<any[]>;
+  findTransactionByTxHash(txHash: string): Promise<any>;
+  findTransactionById(id: string): Promise<any>;
   updateByTxHash(txHash: string, payload: any): Promise<void>;
 }
 

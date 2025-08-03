@@ -1,5 +1,6 @@
 import { Contract, ethers, Signer } from "ethers";
 import { Interface } from "ethers/lib/utils";
+
 import {
   GenerateContractTransactionData,
   Subscription,
@@ -15,28 +16,6 @@ export abstract class ContractModel {
     this.abi = new ethers.utils.Interface(abi);
 
     this.contract = new Contract(address, abi, signer);
-
-    this._signerList.push(signer);
-  }
-
-  public setDefaultSigner(signer: Signer) {
-    if (!this._signerList.includes(signer)) {
-      throw new Error("signer is not in signer list");
-    }
-
-    this.signer = signer;
-  }
-
-  public registerBackupSigner(signers: Signer[]): void {
-    this._signerList.push(...signers);
-  }
-
-  public get signerList(): Signer[] {
-    return this._signerList;
-  }
-
-  public removeSigner(signer: Signer): void {
-    this._signerList = this._signerList.filter((i) => i !== signer);
   }
 
   public get provider(): ethers.providers.Provider {
@@ -46,11 +25,10 @@ export abstract class ContractModel {
   public async generateTransaction(
     data: GenerateContractTransactionData,
     options?: {
-      signer?: Signer;
       gasPrice?: string;
     }
-  ): Promise<{ txHash: string; signedTransaction: string }> {
-    const signer = options?.signer || this.signer;
+  ): Promise<{ preCalculatedHash: string; signedTransaction: string }> {
+    const signer = this.signer;
     const params = data.data;
 
     const gasPrice = options?.gasPrice || (await signer.provider.getGasPrice());
@@ -61,7 +39,6 @@ export abstract class ContractModel {
       params,
       {
         gasPrice: gasPrice.toString(),
-        signer,
       }
     );
 
@@ -71,7 +48,7 @@ export abstract class ContractModel {
 
     const signerNextNonce = signerPopulatedTx.nonce.toString();
 
-    if (data.nonce && data.nonce > signerNextNonce) {
+    if (data.nonce && data.nonce !== signerNextNonce) {
       throw new Error(
         `signer ${signerAddress} next nonce ${signerNextNonce} is less than to passed nonce of ${data.nonce}`
       );
@@ -82,7 +59,7 @@ export abstract class ContractModel {
     const preCalculatedHash = ethers.utils.keccak256(signedTransaction);
 
     return {
-      txHash: preCalculatedHash,
+      preCalculatedHash,
       signedTransaction,
     };
   }
@@ -92,14 +69,9 @@ export abstract class ContractModel {
     data: any[],
     options: {
       gasPrice: string;
-      signer?: Signer;
     }
   ): Promise<ethers.PopulatedTransaction> {
     let contract = this.contract;
-
-    if (options.signer) {
-      contract = new Contract(this.address, this.abi, options.signer);
-    }
 
     return contract.populateTransaction[functionName](...data, {
       gasPrice: options.gasPrice,

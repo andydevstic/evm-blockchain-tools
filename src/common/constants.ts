@@ -19,6 +19,14 @@ export enum TransactionReceiptStatus {
   SUCCESS = 1,
 }
 
+export enum BlockchainTransactionError {
+  TIMEOUT = "timeout",
+  FORCED_TIMEOUT = "force_timeout",
+  TX_ERROR = "transaction_error",
+  SERVER_ERROR = "server_error",
+  TX_REJECTED = "tx_rejected",
+}
+
 export const MinGas = BigNumber.from("3000000000"); // 3.0 Gwei
 export const AdditionalGas = BigNumber.from("1000000000"); // 1 Gwei
 
@@ -43,6 +51,7 @@ export const ERR_CODE = {
   INVALID_DESTINATION_ADDRESS: "INVALID_DESTINATION_ADDRESS".toLowerCase(),
   INVALID_CURRENCY_OR_AMOUNT: "INVALID_CURRENCY_OR_AMOUNT".toLowerCase(),
   CONFIRMATION_TOO_LOW: "CONFIRMATION_TOO_LOW".toLowerCase(),
+  NO_SEND_TX_METHOD: "NO_SEND_TX_METHOD".toLowerCase(),
 };
 
 export enum BLOCKCHAIN_CHAIN {
