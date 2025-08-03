@@ -27,10 +27,11 @@ export class ContractRegistry {
 
   public async registerContract<T extends ContractModel>(
     contract: T,
-    address: string,
     network: BLOCKCHAIN_CHAIN,
     signerName: string
   ): Promise<void> {
+    const address = contract.address;
+
     const hashKey = this.buildHashKey(network, address, signerName);
     if (this.registry.has(hashKey)) {
       return;
