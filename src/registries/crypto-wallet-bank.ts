@@ -119,13 +119,13 @@ export class CryptoWalletBank {
 
   public async getWallet(
     username: string,
-    walletId: string,
+    walletName: string,
     secret: string,
     options: Partial<GetWalletOptions>
   ): Promise<string> {
     const foundWallet = await this.storageEngine.getOne({
       username,
-      id: walletId,
+      name: walletName,
     });
 
     if (!foundWallet) {
@@ -151,13 +151,13 @@ export class CryptoWalletBank {
 
   public async recoverWallet(
     username: string,
-    walletId: string,
+    walletName: string,
     secret: string,
     options: Partial<GetWalletOptions>
   ): Promise<string> {
     const foundWallet = await this.storageEngine.getOne({
       username,
-      id: walletId,
+      name: walletName,
     });
 
     if (!foundWallet) {
