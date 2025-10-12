@@ -100,6 +100,7 @@ export interface CryptoWallet<T = any> {
   ownershipType: WALLET_OWNERSHIP_TYPE;
   type: WALLET_TYPE;
   data: T;
+  metadata: any;
 }
 
 export interface WithdrawWalletDTO {

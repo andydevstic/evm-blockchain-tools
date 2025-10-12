@@ -8,13 +8,19 @@ import {
 } from "../common/interfaces";
 import { EvmCryptoWalletData } from "../utils/crypto-wallet/evm-crypto-wallet";
 
+export interface HasWalletId {
+  walletId: string;
+}
+
 export type GetWalletOptions = {
   userSecret: string;
   serverSecret: string;
   recoverySecret: string;
 };
 
-export type CreateWalletOptions = {};
+export type CreateWalletOptions = {
+  userKeepsOwnPrivate: boolean;
+};
 
 export class CryptoWalletBank {
   constructor(
@@ -22,13 +28,16 @@ export class CryptoWalletBank {
     protected evmWalletEngine: CryptoWalletEngine
   ) {}
 
-  public async importWallet(
+  public async importWallet<T extends HasWalletId>(
     username: string,
     walletName: string,
     secret: string,
     data: any,
-    type: WALLET_TYPE
-  ): Promise<OperationResult<{ walletId: string }>> {
+    type: WALLET_TYPE,
+    options: CreateWalletOptions = {
+      userKeepsOwnPrivate: true,
+    }
+  ): Promise<OperationResult<T>> {
     let createdWallet: CryptoWallet;
 
     switch (type) {
@@ -36,6 +45,10 @@ export class CryptoWalletBank {
         const walletData: EvmCryptoWalletData =
           await this.evmWalletEngine.importWallet(data, secret);
 
+        if (options?.userKeepsOwnPrivate) {
+          delete walletData.userSecretPart;
+        }
+
         createdWallet = await this.storageEngine.create({
           address: walletData.address,
           data: walletData,
@@ -43,27 +56,32 @@ export class CryptoWalletBank {
           ownershipType: WALLET_OWNERSHIP_TYPE.MASTER,
           username,
           type,
+          metadata: options,
         });
-        break;
+
+        return {
+          success: true,
+          data: {
+            walletId: createdWallet.id,
+            userPrivate: options?.userKeepsOwnPrivate
+              ? walletData.userSecretPart
+              : null,
+          } as unknown as T,
+        };
       default:
         throw new Error("wallet type not supported");
     }
-
-    return {
-      success: true,
-      data: {
-        walletId: createdWallet.id,
-      },
-    };
   }
 
-  public async createNewWallet(
+  public async createNewWallet<T extends HasWalletId>(
     username: string,
     walletName: string,
     secret: string,
     type: WALLET_TYPE,
-    _options: CreateWalletOptions = {}
-  ): Promise<OperationResult<{ walletId: string }>> {
+    options: CreateWalletOptions = {
+      userKeepsOwnPrivate: true,
+    }
+  ): Promise<OperationResult<T>> {
     let createdWallet: CryptoWallet;
 
     switch (type) {
@@ -71,6 +89,10 @@ export class CryptoWalletBank {
         const walletData: EvmCryptoWalletData =
           await this.evmWalletEngine.createWallet(secret);
 
+        if (options?.userKeepsOwnPrivate) {
+          delete walletData.userSecretPart;
+        }
+
         createdWallet = await this.storageEngine.create({
           address: walletData.address,
           data: walletData,
@@ -78,18 +100,21 @@ export class CryptoWalletBank {
           ownershipType: WALLET_OWNERSHIP_TYPE.MASTER,
           username,
           type,
+          metadata: options,
         });
-        break;
+
+        return {
+          success: true,
+          data: {
+            walletId: createdWallet.id,
+            userPrivate: options?.userKeepsOwnPrivate
+              ? walletData.userSecretPart
+              : null,
+          } as unknown as T,
+        };
       default:
         throw new Error("wallet type not supported");
     }
-
-    return {
-      success: true,
-      data: {
-        walletId: createdWallet.id,
-      },
-    };
   }
 
   public async getWallet(
