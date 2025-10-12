@@ -3,6 +3,11 @@ import { BigNumber, Signer, ethers } from "ethers";
 import { ALCHEMY_NETWORK, APP_NETWORK, MULTISIG_TX_STATUS } from "./constants";
 import { Options } from "reconnecting-websocket";
 
+export interface CryptoWalletEngine {
+  createWallet(userPin?: string): Promise<any>;
+  recoverPrivateKey(data: RecoverPrivateKeyData): Promise<any>;
+}
+
 export interface TransactionHistoryStorage {
   create(data: any, ...options: any[]): Promise<any>;
   findTransactionsBySigner(
@@ -49,6 +54,7 @@ export interface RecoverPrivateKeyData {
   userSecret?: string;
   serverSecret?: string;
   recoverySecret?: string;
+  userPin?: string;
   nonce: string;
 }
 
@@ -57,15 +63,16 @@ export interface HasPrivateKey {
 }
 
 export interface WalletStorage {
-  getOne(filter: Record<any, any>): Promise<WithdrawWallet>;
-  getMany(filter: Record<any, any>): Promise<WithdrawWallet[]>;
+  getOne(filter: Record<any, any>): Promise<CryptoWallet>;
+  getMany(filter: Record<any, any>): Promise<CryptoWallet[]>;
 
   paginate(
     filter: Record<any, any>,
     limit?: number,
     offset?: number
-  ): Promise<WithdrawWallet[]>;
-  bulkCreate(data: Partial<WithdrawWallet>[]): Promise<WithdrawWallet[]>;
+  ): Promise<CryptoWallet[]>;
+  bulkCreate(data: Partial<CryptoWallet>[]): Promise<CryptoWallet[]>;
+  create(data: Partial<CryptoWallet>): Promise<CryptoWallet>;
 }
 
 export interface CreateSlaveWalletData {
@@ -74,30 +81,34 @@ export interface CreateSlaveWalletData {
   pin?: string;
 }
 
-export enum WALLET_TYPE {
+export enum WALLET_OWNERSHIP_TYPE {
   MASTER = "master",
   SLAVE = "slave",
 }
 
-export interface WithdrawWallet {
+export enum WALLET_TYPE {
+  EVM = "evm",
+  SOL = "sol",
+}
+
+export interface CryptoWallet<T = any> {
   id: string;
+  username: string;
   name: string;
   address: string;
+  ownershipType: WALLET_OWNERSHIP_TYPE;
   type: WALLET_TYPE;
-  tags: string[];
-  nonce: string;
-  serverSecretPart: string;
-  userSecretPart: string;
+  data: T;
 }
 
 export interface WithdrawWalletDTO {
   id: string;
-  type: WALLET_TYPE;
+  type: WALLET_OWNERSHIP_TYPE;
   name: string;
   address: string;
 }
 
-export interface ConfigOptions {
+export interface CryptoWalletConfig {
   privateKey: string;
   defaultUserPin: string;
   adminPin: string;

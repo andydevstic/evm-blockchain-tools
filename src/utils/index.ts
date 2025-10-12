@@ -6,3 +6,4 @@ export * from "./validation-utils";
 export * from "./gas-utils";
 export * from "./aes-encryption";
 export * from "./string-utils";
+export * from "./crypto-wallet";

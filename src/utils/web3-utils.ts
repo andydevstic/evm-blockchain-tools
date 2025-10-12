@@ -71,6 +71,51 @@ export async function generateKeyPair(): Promise<GenerateKeyPairResponse> {
   };
 }
 
+export function aeadEnc(
+  msgUtf8: string,
+  nonce24: Uint8Array,
+  key32: Uint8Array
+) {
+  const ad = undefined; // optional associated data
+  return sodium.crypto_secretbox_easy(
+    sodium.from_string(msgUtf8),
+    nonce24,
+    key32
+  );
+}
+
+export function aeadDec(
+  ct: Uint8Array,
+  nonce24: Uint8Array,
+  key32: Uint8Array
+) {
+  return sodium.crypto_secretbox_open_easy(ct, nonce24, key32); // Uint8Array
+}
+
+export function norm24(n: Uint8Array | Buffer) {
+  if (n.length !== sodium.crypto_secretbox_NONCEBYTES)
+    throw new Error("nonce must be 24 bytes");
+  return new Uint8Array(n);
+}
+
+export function argonKey(pass: string, salt16: Uint8Array): Uint8Array {
+  return sodium.crypto_pwhash(
+    32,
+    pass,
+    salt16,
+    sodium.crypto_pwhash_OPSLIMIT_INTERACTIVE,
+    sodium.crypto_pwhash_MEMLIMIT_INTERACTIVE,
+    sodium.crypto_pwhash_ALG_DEFAULT
+  );
+}
+
+export function norm32KeyHex(hex: string): Uint8Array {
+  const clean = hex.startsWith("0x") ? hex.slice(2) : hex;
+  if (!/^[0-9a-fA-F]{64}$/.test(clean))
+    throw new Error("server key must be 32-byte hex");
+  return sodium.from_hex(clean);
+}
+
 export function splitPrivateKeyToParts(
   privateKey: string,
   nonce: Buffer
