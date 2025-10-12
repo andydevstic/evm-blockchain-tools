@@ -117,38 +117,6 @@ export class CryptoWalletBank {
     }
   }
 
-  public async getWallet(
-    username: string,
-    walletName: string,
-    secret: string,
-    options: Partial<GetWalletOptions>
-  ): Promise<string> {
-    const foundWallet = await this.storageEngine.getOne({
-      username,
-      name: walletName,
-    });
-
-    if (!foundWallet) {
-      throw new Error("wallet not found");
-    }
-
-    const { type, data } = foundWallet;
-
-    switch (type) {
-      case WALLET_TYPE.EVM:
-        const privKey: string = await this.evmWalletEngine.recoverPrivateKey({
-          nonce: data.nonce,
-          userPin: secret,
-          userSecret: options.userSecret,
-          serverSecret: options.serverSecret,
-        });
-
-        return privKey;
-      default:
-        throw new Error("wallet type not supported");
-    }
-  }
-
   public async recoverWallet(
     username: string,
     walletName: string,
