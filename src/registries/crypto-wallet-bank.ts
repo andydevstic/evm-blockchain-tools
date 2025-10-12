@@ -24,7 +24,7 @@ export type CreateWalletOptions = {
 
 export class CryptoWalletBank {
   constructor(
-    protected storageEngine: WalletStorage,
+    protected storageEngine: Pick<WalletStorage, "create" | "getOne">,
     protected evmWalletEngine: CryptoWalletEngine
   ) {}
 
