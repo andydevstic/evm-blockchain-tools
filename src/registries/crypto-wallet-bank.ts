@@ -22,6 +22,41 @@ export class CryptoWalletBank {
     protected evmWalletEngine: CryptoWalletEngine
   ) {}
 
+  public async importWallet(
+    username: string,
+    walletName: string,
+    secret: string,
+    data: any,
+    type: WALLET_TYPE
+  ): Promise<OperationResult<{ walletId: string }>> {
+    let createdWallet: CryptoWallet;
+
+    switch (type) {
+      case WALLET_TYPE.EVM:
+        const walletData: EvmCryptoWalletData =
+          await this.evmWalletEngine.importWallet(data, secret);
+
+        createdWallet = await this.storageEngine.create({
+          address: walletData.address,
+          data: walletData,
+          name: walletName,
+          ownershipType: WALLET_OWNERSHIP_TYPE.MASTER,
+          username,
+          type,
+        });
+        break;
+      default:
+        throw new Error("wallet type not supported");
+    }
+
+    return {
+      success: true,
+      data: {
+        walletId: createdWallet.id,
+      },
+    };
+  }
+
   public async createNewWallet(
     username: string,
     walletName: string,

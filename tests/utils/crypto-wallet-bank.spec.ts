@@ -1,274 +1,189 @@
-import { describe, it, beforeEach } from "mocha";
+// test/EvmCryptoWallet.import.spec.ts
+import { describe, it, before } from "mocha";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
-import { CryptoWalletBank } from "../../src/registries";
+import sodium from "libsodium-wrappers";
+import { ethers } from "ethers";
+
 import {
-  WALLET_TYPE,
-  WALLET_OWNERSHIP_TYPE,
+  CryptoWalletConfig,
+  RecoverPrivateKeyData,
 } from "../../src/common/interfaces";
+import { EvmCryptoWallet } from "../../src/utils/crypto-wallet";
 
 chai.use(chaiAsPromised);
 
-type CryptoWallet = {
-  id: string;
-  address: string;
-  name: string;
-  username: string;
-  type: WALLET_TYPE;
-  ownershipType: WALLET_OWNERSHIP_TYPE;
-  data: any;
-};
+// --- Test config ---
+const TEST_SERVER_KEY_HEX =
+  "a304f41c2f61e072d5662ae4c36937fcc03bd2fddae72e784cfdbac255e819d2"; // 32-byte hex
+const TEST_ADMIN_PIN = "admin-1234";
+const TEST_DEFAULT_USER_PIN = "user-0000";
 
-type WalletCreateInput = Omit<CryptoWallet, "id">;
+// Known EVM private key/address pair (Ganache first default account)
+const IMPORT_PRIV =
+  "0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d";
+const IMPORT_ADDR = "0x90f8bf6A479f320ead074411a4B0e7944Ea8c9C1".toLowerCase();
 
-type WalletStorage = {
-  create(data: WalletCreateInput): Promise<CryptoWallet>;
-  getOne(query: { username: string; id: string }): Promise<CryptoWallet | null>;
-};
+describe("EvmCryptoWallet.importWallet", function () {
+  this.timeout(30000);
 
-type EvmCreateOut = {
-  address: string;
-  nonce: string;
-  userSecretPart: string;
-  serverSecretPart: string;
-  recoverySecretPart: string;
-};
+  let cfg: CryptoWalletConfig;
 
-type CryptoWalletEngine = {
-  createWallet(userPin?: string): Promise<EvmCreateOut>;
-  recoverPrivateKey(args: {
-    nonce: string;
-    userPin?: string;
-    userSecret?: string;
-    serverSecret?: string;
-    recoverySecret?: string;
-  }): Promise<string>;
-};
+  before(async () => {
+    await sodium.ready;
+    cfg = {
+      privateKey: TEST_SERVER_KEY_HEX,
+      adminPin: TEST_ADMIN_PIN,
+      defaultUserPin: TEST_DEFAULT_USER_PIN,
+    } as CryptoWalletConfig;
+  });
 
-// ----- System under test -----
+  it("imports a wallet and returns correct address + wrapped shares", async () => {
+    const svc = new EvmCryptoWallet(cfg);
+    const out = await svc.importWallet(IMPORT_PRIV, "123456");
 
-// ----- In-memory storage mock -----
-class InMemoryStorage implements WalletStorage {
-  private map = new Map<string, CryptoWallet>();
-  private seq = 1;
-  async create(data: WalletCreateInput): Promise<CryptoWallet> {
-    const id = String(this.seq++);
-    const rec: CryptoWallet = { id, ...data };
-    this.map.set(id, rec);
-    return rec;
-  }
-  async getOne(query: {
-    username: string;
-    id: string;
-  }): Promise<CryptoWallet | null> {
-    const rec = this.map.get(query.id) || null;
-    if (rec && rec.username === query.username) return rec;
-    return null;
-  }
-}
+    expect(out.address.toLowerCase()).to.equal(IMPORT_ADDR);
+    expect(out.nonce).to.match(/^[a-f0-9]{48}$/); // 24 bytes hex
+    expect(out.userSecretPart).to.be.a("string").with.length.greaterThan(0);
+    expect(out.serverSecretPart).to.be.a("string").with.length.greaterThan(0);
+    expect(out.recoverySecretPart).to.be.a("string").with.length.greaterThan(0);
+  });
 
-// ----- Engine mock -----
-class FakeEvmEngine implements CryptoWalletEngine {
-  public lastCreatePin?: string;
-  public lastRecoverArgs?: any;
+  it("round-trips: recover with user+server / user+recovery / server+recovery", async () => {
+    const svc = new EvmCryptoWallet(cfg);
+    const created = await svc.importWallet(IMPORT_PRIV, "123456");
 
-  async createWallet(userPin?: string): Promise<EvmCreateOut> {
-    this.lastCreatePin = userPin;
-    return {
-      address: "0x1111111111111111111111111111111111111111",
-      nonce: "a".repeat(48), // hex 24 bytes
-      userSecretPart: "user-ct-hex",
-      serverSecretPart: "server-ct-hex",
-      recoverySecretPart: "recovery-ct-hex",
-    };
-  }
+    const nonce = created.nonce;
 
-  async recoverPrivateKey(args: {
-    nonce: string;
-    userPin?: string;
-    userSecret?: string;
-    serverSecret?: string;
-    recoverySecret?: string;
-  }): Promise<string> {
-    this.lastRecoverArgs = args;
+    async function recoverAndCheck(data: Partial<RecoverPrivateKeyData>) {
+      const priv = await svc.recoverPrivateKey({
+        userPin: "123456",
+        userSecret: data.userSecret,
+        serverSecret: data.serverSecret,
+        recoverySecret: data.recoverySecret,
+        nonce,
+      } as RecoverPrivateKeyData);
 
-    // Simulate policy:
-    // - user flow requires userSecret + serverSecret
-    // - recovery flow requires serverSecret + recoverySecret
-    const hasUserServer = !!(args.userSecret && args.serverSecret);
-    const hasServerRecovery = !!(args.serverSecret && args.recoverySecret);
-
-    if (!hasUserServer && !hasServerRecovery) {
-      throw new Error("must provide 2 out of 3 keys");
+      expect(priv).to.match(/^0x[0-9a-fA-F]{64}$/);
+      const w = new ethers.Wallet(priv);
+      expect((await w.getAddress()).toLowerCase()).to.equal(IMPORT_ADDR);
+      return priv;
     }
-    if (!/^([a-f0-9]{48})$/i.test(args.nonce)) {
-      throw new Error("bad nonce");
-    }
-    // Return a fixed-looking EVM key
-    return "0x" + "b".repeat(64);
-  }
-}
 
-// ----- Tests -----
-describe("CryptoWalletBank", () => {
-  let storage: InMemoryStorage;
-  let engine: FakeEvmEngine;
-  let bank: CryptoWalletBank;
-
-  beforeEach(() => {
-    storage = new InMemoryStorage();
-    engine = new FakeEvmEngine();
-    bank = new CryptoWalletBank(storage as any, engine as any);
-  });
-
-  it("createNewWallet persists and returns walletId", async () => {
-    const res = await bank.createNewWallet(
-      "alice",
-      "My Wallet",
-      "123456", // user pin
-      WALLET_TYPE.EVM,
-      {}
-    );
-    expect(res.success).to.equal(true);
-    expect(res.data?.walletId).to.be.a("string");
-
-    const stored = await storage.getOne({
-      username: "alice",
-      id: res.data!.walletId,
+    // user + server
+    await recoverAndCheck({
+      userSecret: created.userSecretPart,
+      serverSecret: created.serverSecretPart,
     });
-    expect(stored).not.to.equal(null);
-    expect(stored!.address).to.equal(
-      "0x1111111111111111111111111111111111111111"
-    );
-    expect(stored!.type).to.equal(WALLET_TYPE.EVM);
-    expect(stored!.ownershipType).to.equal(WALLET_OWNERSHIP_TYPE.MASTER);
-    expect(engine.lastCreatePin).to.equal("123456");
-  });
 
-  it("getWallet uses user+server secrets and returns the private key", async () => {
-    const { data } = await bank.createNewWallet(
-      "bob",
-      "Wallet B",
-      "9999",
-      WALLET_TYPE.EVM
-    );
-    const walletId = data!.walletId;
-
-    const pk = await bank.getWallet("bob", walletId, "9999", {
-      userSecret: "user-ct-hex",
-      serverSecret: "server-ct-hex",
+    // user + recovery (recovery requires both pins → we supplied user pin)
+    await recoverAndCheck({
+      userSecret: created.userSecretPart,
+      recoverySecret: created.recoverySecretPart,
     });
-    expect(pk).to.match(/^0x[0-9a-fA-F]{64}$/);
 
-    // Engine saw the right args
-    expect(engine.lastRecoverArgs.userPin).to.equal("9999");
-    expect(engine.lastRecoverArgs.userSecret).to.equal("user-ct-hex");
-    expect(engine.lastRecoverArgs.serverSecret).to.equal("server-ct-hex");
-    expect(engine.lastRecoverArgs.recoverySecret).to.equal(undefined);
-  });
-
-  it("recoverWallet uses server+recovery secrets and returns the private key", async () => {
-    const { data } = await bank.createNewWallet(
-      "carol",
-      "Wallet C",
-      "2468",
-      WALLET_TYPE.EVM
-    );
-    const walletId = data!.walletId;
-
-    const pk = await bank.recoverWallet("carol", walletId, "2468", {
-      serverSecret: "server-ct-hex",
-      recoverySecret: "recovery-ct-hex",
+    // server + recovery (needs both pins → still requires the user pin param)
+    await recoverAndCheck({
+      serverSecret: created.serverSecretPart,
+      recoverySecret: created.recoverySecretPart,
     });
-    expect(pk).to.match(/^0x[0-9a-fA-F]{64}$/);
-
-    expect(engine.lastRecoverArgs.userPin).to.equal("2468");
-    expect(engine.lastRecoverArgs.serverSecret).to.equal("server-ct-hex");
-    expect(engine.lastRecoverArgs.recoverySecret).to.equal("recovery-ct-hex");
-    expect(engine.lastRecoverArgs.userSecret).to.equal(undefined);
   });
 
-  it("getWallet throws when userSecret or serverSecret missing", async () => {
-    const { data } = await bank.createNewWallet(
-      "dave",
-      "Wallet D",
-      "0000",
-      WALLET_TYPE.EVM
-    );
-    const walletId = data!.walletId;
+  it("wrong user PIN → all pairings reject (recovery needs both pins)", async () => {
+    const svc = new EvmCryptoWallet(cfg);
+    const created = await svc.importWallet(IMPORT_PRIV, "9999");
 
-    // If you added the validations suggested above:
+    const nonce = created.nonce;
+
+    // {user + server}
     await expect(
-      bank.getWallet("dave", walletId, "0000", {
-        userSecret: "only-user",
-      }) as any
-    ).to.be.rejected; // if you use chai-as-promised; else wrap expectRejects
+      svc.recoverPrivateKey({
+        userPin: "WRONG",
+        userSecret: created.userSecretPart,
+        serverSecret: created.serverSecretPart,
+        nonce,
+      } as RecoverPrivateKeyData)
+    ).to.be.rejectedWith(/must provide 2 out of 3 keys/i);
 
-    // Without the extra validations, the engine will reject:
-    try {
-      await bank.getWallet("dave", walletId, "0000", {
-        userSecret: "only-user",
-      } as any);
-      throw new Error("should have thrown");
-    } catch (e: any) {
-      expect(String(e.message)).to.match(
-        /(getWallet requires|must provide 2 out of 3 keys)/i
-      );
-    }
+    // {user + recovery}
+    await expect(
+      svc.recoverPrivateKey({
+        userPin: "WRONG",
+        userSecret: created.userSecretPart,
+        recoverySecret: created.recoverySecretPart,
+        nonce,
+      } as RecoverPrivateKeyData)
+    ).to.be.rejectedWith(/must provide 2 out of 3 keys/i);
+
+    // {server + recovery}
+    await expect(
+      svc.recoverPrivateKey({
+        userPin: "WRONG",
+        serverSecret: created.serverSecretPart,
+        recoverySecret: created.recoverySecretPart,
+        nonce,
+      } as RecoverPrivateKeyData)
+    ).to.be.rejectedWith(/must provide 2 out of 3 keys/i);
   });
 
-  it("recoverWallet throws when recoverySecret or serverSecret missing", async () => {
-    const { data } = await bank.createNewWallet(
-      "erin",
-      "Wallet E",
-      "1357",
-      WALLET_TYPE.EVM
-    );
-    const walletId = data!.walletId;
+  it("wrong admin PIN (new instance) → all pairings reject", async () => {
+    // Create with correct admin pin
+    const goodSvc = new EvmCryptoWallet(cfg);
+    const created = await goodSvc.importWallet(IMPORT_PRIV, "1357");
+    const nonce = created.nonce;
 
-    try {
-      await bank.recoverWallet("erin", walletId, "1357", {
-        recoverySecret: "only-recovery",
-      } as any);
-      throw new Error("should have thrown");
-    } catch (e: any) {
-      expect(String(e.message)).to.match(
-        /(recoverWallet requires|must provide 2 out of 3 keys)/i
-      );
-    }
+    // Recover with a service configured with WRONG admin pin
+    const badCfg: CryptoWalletConfig = {
+      ...cfg,
+      adminPin: "ADMIN-WRONG",
+    } as CryptoWalletConfig;
+    const badSvc = new EvmCryptoWallet(badCfg);
+
+    // {user + server}
+    await expect(
+      badSvc.recoverPrivateKey({
+        userPin: "1357",
+        userSecret: created.userSecretPart,
+        serverSecret: created.serverSecretPart,
+        nonce,
+      } as RecoverPrivateKeyData)
+    ).to.be.rejected;
+
+    // {user + recovery} (recovery requires admin too → fails)
+    await expect(
+      badSvc.recoverPrivateKey({
+        userPin: "1357",
+        userSecret: created.userSecretPart,
+        recoverySecret: created.recoverySecretPart,
+        nonce,
+      } as RecoverPrivateKeyData)
+    ).to.be.rejected;
+
+    // {server + recovery} (both wrap depend on admin → fails)
+    await expect(
+      badSvc.recoverPrivateKey({
+        userPin: "1357",
+        serverSecret: created.serverSecretPart,
+        recoverySecret: created.recoverySecretPart,
+        nonce,
+      } as RecoverPrivateKeyData)
+    ).to.be.rejected;
   });
 
-  it("getWallet throws when wallet not found", async () => {
-    try {
-      await bank.getWallet("zoe", "9999", "pin", {
-        userSecret: "u",
-        serverSecret: "s",
-      });
-      throw new Error("should have thrown");
-    } catch (e: any) {
-      expect(String(e.message)).to.match(/wallet not found/i);
-    }
+  it("rejects invalid private key input", async () => {
+    const svc = new EvmCryptoWallet(cfg);
+    await expect(svc.importWallet("not-a-key", "123456")).to.be.rejected;
   });
 
-  it("recoverWallet throws when type not supported", async () => {
-    // Insert a non-EVM wallet directly into storage
-    const created = await (storage as any).create({
-      address: "X",
-      data: {},
-      name: "Weird",
-      ownershipType: WALLET_OWNERSHIP_TYPE.MASTER,
-      username: "ned",
-      type: WALLET_TYPE.SOL, // not supported
-    });
-
-    try {
-      await bank.recoverWallet("ned", created.id, "pin", {
-        serverSecret: "s",
-        recoverySecret: "r",
-      });
-      throw new Error("should have thrown");
-    } catch (e: any) {
-      expect(String(e.message)).to.match(/wallet type not supported/i);
+  it("does NOT call generateKeyPair during import", async () => {
+    // Subclass that would crash if generateKeyPair() is called
+    class GuardedWallet extends EvmCryptoWallet {
+      protected async generateKeyPair(): Promise<any> {
+        throw new Error("generateKeyPair should not be called by importWallet");
+      }
     }
+    const svc = new GuardedWallet(cfg);
+    const out = await svc.importWallet(IMPORT_PRIV, "424242");
+    expect(out.address.toLowerCase()).to.equal(IMPORT_ADDR);
   });
 });

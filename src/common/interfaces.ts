@@ -4,6 +4,7 @@ import { ALCHEMY_NETWORK, APP_NETWORK, MULTISIG_TX_STATUS } from "./constants";
 import { Options } from "reconnecting-websocket";
 
 export interface CryptoWalletEngine {
+  importWallet(data: any, userPin?: string): Promise<any>;
   createWallet(userPin?: string): Promise<any>;
   recoverPrivateKey(data: RecoverPrivateKeyData): Promise<any>;
 }

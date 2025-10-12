@@ -82,9 +82,30 @@ export class EvmCryptoWallet implements CryptoWalletEngine {
     ].join(SEP);
   }
 
-  public async createWallet(userPin?: string) {
+  public async importWallet(
+    privateKey: any,
+    userPin?: string
+  ): Promise<EvmCryptoWalletData> {
+    await this.init();
+    const wallet = new ethers.Wallet(privateKey);
+
+    const publicKey = await wallet.getAddress();
+
+    return this.processGeneratedKey(userPin, privateKey, publicKey);
+  }
+
+  public async createWallet(userPin?: string): Promise<EvmCryptoWalletData> {
     await this.init();
     const { privateKey, publicKey } = await this.generateKeyPair();
+
+    return this.processGeneratedKey(userPin, privateKey, publicKey);
+  }
+
+  protected processGeneratedKey(
+    userPin: string,
+    privateKey: string,
+    publicKey: string
+  ): EvmCryptoWalletData {
     const evmHex = privateKey.replace(/^0x/, "").padStart(64, "0");
     const pkBytes = sodium.from_hex(evmHex);
 
