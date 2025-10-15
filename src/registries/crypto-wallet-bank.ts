@@ -201,6 +201,7 @@ export class CryptoWalletBank {
         const privKey: string = await this.evmWalletEngine.recoverPrivateKey({
           nonce: data.nonce,
           userPin: secret,
+          userSecret: options.userSecret,
           serverSecret: options.serverSecret,
           recoverySecret: options.recoverySecret,
         });
