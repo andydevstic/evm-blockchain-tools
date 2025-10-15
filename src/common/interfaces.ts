@@ -74,6 +74,7 @@ export interface WalletStorage {
   ): Promise<CryptoWallet[]>;
   bulkCreate(data: Partial<CryptoWallet>[]): Promise<CryptoWallet[]>;
   create(data: Partial<CryptoWallet>): Promise<CryptoWallet>;
+  deleteById(id: string | number): Promise<void>;
 }
 
 export interface CreateSlaveWalletData {

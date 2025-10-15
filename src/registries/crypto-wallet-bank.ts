@@ -7,6 +7,7 @@ import {
   WALLET_OWNERSHIP_TYPE,
 } from "../common/interfaces";
 import { EvmCryptoWalletData } from "../utils/crypto-wallet/evm-crypto-wallet";
+import { ERR_CODE } from "../common/constants";
 
 export interface HasWalletId {
   walletId: string;
@@ -24,7 +25,10 @@ export type CreateWalletOptions = {
 
 export class CryptoWalletBank {
   constructor(
-    protected storageEngine: Pick<WalletStorage, "create" | "getOne">,
+    protected storageEngine: Pick<
+      WalletStorage,
+      "create" | "getOne" | "deleteById"
+    >,
     protected evmWalletEngine: CryptoWalletEngine
   ) {}
 
@@ -117,19 +121,62 @@ export class CryptoWalletBank {
     }
   }
 
-  public async recoverWallet(
+  public async deleteWallet(
     username: string,
-    walletName: string,
-    secret: string,
-    options: Partial<GetWalletOptions>
-  ): Promise<string> {
+    walletName: string
+  ): Promise<OperationResult> {
     const foundWallet = await this.storageEngine.getOne({
       username,
       name: walletName,
     });
 
     if (!foundWallet) {
-      throw new Error("wallet not found");
+      return {
+        success: false,
+        message: "wallet not found",
+        code: ERR_CODE.WALLET_NOT_FOUND,
+      };
+    }
+
+    await this.storageEngine.deleteById(foundWallet.id);
+
+    return {
+      success: true,
+    };
+  }
+
+  public async getWalletInfo(
+    username: string,
+    walletName: string
+  ): Promise<OperationResult> {
+    const foundWallet = await this.storageEngine.getOne({
+      username,
+      name: walletName,
+    });
+
+    return {
+      success: true,
+      data: foundWallet,
+    };
+  }
+
+  public async recoverWallet(
+    username: string,
+    walletName: string,
+    secret: string,
+    options: Partial<GetWalletOptions>
+  ): Promise<OperationResult<string>> {
+    const foundWallet = await this.storageEngine.getOne({
+      username,
+      name: walletName,
+    });
+
+    if (!foundWallet) {
+      return {
+        success: false,
+        message: "wallet not found",
+        code: ERR_CODE.WALLET_NOT_FOUND,
+      };
     }
 
     const { type, data } = foundWallet;
@@ -143,7 +190,10 @@ export class CryptoWalletBank {
           recoverySecret: options.recoverySecret,
         });
 
-        return privKey;
+        return {
+          success: true,
+          data: privKey,
+        };
       default:
         throw new Error("wallet type not supported");
     }
