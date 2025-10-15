@@ -9,8 +9,10 @@ import {
 import { EvmCryptoWalletData } from "../utils/crypto-wallet/evm-crypto-wallet";
 import { ERR_CODE } from "../common/constants";
 
-export interface HasWalletId {
+export interface CreatedWalletResponse {
   walletId: string;
+  address: string;
+  userPrivate?: string;
 }
 
 export type GetWalletOptions = {
@@ -32,7 +34,7 @@ export class CryptoWalletBank {
     protected evmWalletEngine: CryptoWalletEngine
   ) {}
 
-  public async importWallet<T extends HasWalletId>(
+  public async importWallet(
     username: string,
     walletName: string,
     secret: string,
@@ -41,7 +43,7 @@ export class CryptoWalletBank {
     options: CreateWalletOptions = {
       userKeepsOwnPrivate: true,
     }
-  ): Promise<OperationResult<T>> {
+  ): Promise<OperationResult<CreatedWalletResponse>> {
     let createdWallet: CryptoWallet;
 
     switch (type) {
@@ -67,17 +69,18 @@ export class CryptoWalletBank {
           success: true,
           data: {
             walletId: createdWallet.id,
+            address: createdWallet.address,
             userPrivate: options?.userKeepsOwnPrivate
               ? walletData.userSecretPart
               : null,
-          } as unknown as T,
+          },
         };
       default:
         throw new Error("wallet type not supported");
     }
   }
 
-  public async createNewWallet<T extends HasWalletId>(
+  public async createNewWallet(
     username: string,
     walletName: string,
     secret: string,
@@ -85,7 +88,7 @@ export class CryptoWalletBank {
     options: CreateWalletOptions = {
       userKeepsOwnPrivate: true,
     }
-  ): Promise<OperationResult<T>> {
+  ): Promise<OperationResult<CreatedWalletResponse>> {
     let createdWallet: CryptoWallet;
 
     switch (type) {
@@ -111,10 +114,11 @@ export class CryptoWalletBank {
           success: true,
           data: {
             walletId: createdWallet.id,
+            address: createdWallet.address,
             userPrivate: options?.userKeepsOwnPrivate
               ? walletData.userSecretPart
               : null,
-          } as unknown as T,
+          },
         };
       default:
         throw new Error("wallet type not supported");
@@ -148,7 +152,7 @@ export class CryptoWalletBank {
   public async getWalletInfo(
     username: string,
     walletName: string
-  ): Promise<OperationResult<CryptoWallet>> {
+  ): Promise<OperationResult<CreatedWalletResponse>> {
     const foundWallet = await this.storageEngine.getOne({
       username,
       name: walletName,
@@ -156,7 +160,10 @@ export class CryptoWalletBank {
 
     return {
       success: true,
-      data: foundWallet,
+      data: {
+        address: foundWallet.address,
+        walletId: foundWallet.id,
+      },
     };
   }
 
