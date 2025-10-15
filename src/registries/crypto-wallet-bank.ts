@@ -124,7 +124,7 @@ export class CryptoWalletBank {
   public async deleteWallet(
     username: string,
     walletName: string
-  ): Promise<OperationResult> {
+  ): Promise<OperationResult<void>> {
     const foundWallet = await this.storageEngine.getOne({
       username,
       name: walletName,
@@ -148,7 +148,7 @@ export class CryptoWalletBank {
   public async getWalletInfo(
     username: string,
     walletName: string
-  ): Promise<OperationResult> {
+  ): Promise<OperationResult<CryptoWallet>> {
     const foundWallet = await this.storageEngine.getOne({
       username,
       name: walletName,
