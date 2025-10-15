@@ -158,6 +158,14 @@ export class CryptoWalletBank {
       name: walletName,
     });
 
+    if (!foundWallet) {
+      return {
+        success: false,
+        message: "wallet not found",
+        code: ERR_CODE.WALLET_NOT_FOUND,
+      };
+    }
+
     return {
       success: true,
       data: {
