@@ -23,6 +23,7 @@ export type GetWalletOptions = {
 
 export type CreateWalletOptions = {
   userKeepsOwnPrivate: boolean;
+  recoverable: boolean;
 };
 
 export class CryptoWalletBank {
@@ -41,7 +42,8 @@ export class CryptoWalletBank {
     data: any,
     type: WALLET_TYPE,
     options: CreateWalletOptions = {
-      userKeepsOwnPrivate: true,
+      userKeepsOwnPrivate: false,
+      recoverable: true,
     }
   ): Promise<OperationResult<CreatedWalletResponse>> {
     let createdWallet: CryptoWallet;
@@ -53,6 +55,10 @@ export class CryptoWalletBank {
 
         if (options?.userKeepsOwnPrivate) {
           delete walletData.userSecretPart;
+        }
+
+        if (!options?.recoverable) {
+          delete walletData.serverSecretPart;
         }
 
         createdWallet = await this.storageEngine.create({
@@ -86,7 +92,8 @@ export class CryptoWalletBank {
     secret: string,
     type: WALLET_TYPE,
     options: CreateWalletOptions = {
-      userKeepsOwnPrivate: true,
+      userKeepsOwnPrivate: false,
+      recoverable: true,
     }
   ): Promise<OperationResult<CreatedWalletResponse>> {
     let createdWallet: CryptoWallet;
@@ -98,6 +105,10 @@ export class CryptoWalletBank {
 
         if (options?.userKeepsOwnPrivate) {
           delete walletData.userSecretPart;
+        }
+
+        if (!options?.recoverable) {
+          delete walletData.serverSecretPart;
         }
 
         createdWallet = await this.storageEngine.create({
@@ -196,14 +207,24 @@ export class CryptoWalletBank {
 
     const { type, data } = foundWallet;
 
+    const userSecret = options.userSecret || data.userSecret;
+
+    if (!userSecret && !data.recoverySecret) {
+      return {
+        success: false,
+        message: "missing recovery secret and user secret for recover flow",
+        code: ERR_CODE.RECOVERY_SECRET_NOT_STORED,
+      };
+    }
+
     switch (type) {
       case WALLET_TYPE.EVM:
         const privKey: string = await this.evmWalletEngine.recoverPrivateKey({
           nonce: data.nonce,
           userPin: secret,
-          userSecret: options.userSecret,
-          serverSecret: options.serverSecret,
-          recoverySecret: options.recoverySecret,
+          userSecret,
+          serverSecret: data.serverSecret,
+          recoverySecret: data.recoverySecret,
         });
 
         return {
