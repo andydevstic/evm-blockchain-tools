@@ -207,9 +207,9 @@ export class CryptoWalletBank {
 
     const { type, data } = foundWallet;
 
-    const userSecret = options.userSecret || data.userSecret;
+    const userSecret = options.userSecret || data.userSecretPart;
 
-    if (!userSecret && !data.recoverySecret) {
+    if (!userSecret && !data.recoverySecretPart) {
       return {
         success: false,
         message: "missing recovery secret and user secret for recover flow",
@@ -223,8 +223,8 @@ export class CryptoWalletBank {
           nonce: data.nonce,
           userPin: secret,
           userSecret,
-          serverSecret: data.serverSecret,
-          recoverySecret: data.recoverySecret,
+          serverSecret: data.serverSecretPart,
+          recoverySecret: data.recoverySecretPart,
         });
 
         return {
