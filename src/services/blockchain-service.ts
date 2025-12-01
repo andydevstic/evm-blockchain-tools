@@ -16,6 +16,17 @@ export class BlockchainService {
     return this.provider.getBlock(blockNum);
   }
 
+  public async parseNativeTx(txHash: string) {
+    const tx = await this.provider.getTransactionByID(txHash);
+    if (!tx) throw new Error("Transaction not found");
+
+    const to = tx.to; // receiver address (string or null)
+    const amountWei = tx.value; // bigint (wei)
+    const amountEther = ethers.utils.formatEther(amountWei); // "1.2345" (string)
+
+    return { to, amountWei, amountEther, from: tx.from };
+  }
+
   public async parseERC20TxByNetwork(
     data: string,
     value: any,
